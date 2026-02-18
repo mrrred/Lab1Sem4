@@ -66,90 +66,108 @@ namespace ConsoleApp2.Menu
 
     internal class CreateMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Create";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return true;
         }
     }
 
     internal class OpenMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Open";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return true;
         }
     }
 
     internal class InputMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Input";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return true;
         }
     }
 
     internal class DeleteMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Delete";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return true;
         }
     }
 
     internal class RestoreMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Restore";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return true;
         }
     }
 
     internal class TruncateMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Truncate";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return true;
         }
     }
 
     internal class PrintMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Print";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return true;
         }
     }
 
     internal class HelpMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Help";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return true;
         }
     }
 
     internal class ExitMenuItem : IMenuItemStringeble
     {
-        public string Title { get; private set; }
+        public string Title { get; private set; } = "Exit";
 
         public bool Invoke(string input)
         {
+            Console.WriteLine(Title);
+
             return false;
         }
     }

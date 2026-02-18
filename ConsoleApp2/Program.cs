@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConsoleApp2.Menu;
+using System;
 using System.IO;
 using System.Text;
 
@@ -116,144 +117,24 @@ namespace ConsoleApp21
 
     }
 
-    class Menu
-    {
-        public void Create(string fileName)
-        {
-
-        }
-
-        public void Open(string fileName)
-        {
-
-        }
-
-        public void Input(string componentType, IType type)
-        {
-
-        }
-
-        public void Input(string componentType)
-        {
-
-        }
-
-        public void Delete(string componentType)
-        {
-
-        }
-
-        //public void Delete(string componentType)
-        //{
-
-        //}
-
-        public void Restore(string componentType)
-        {
-
-        }
-
-        public void Restore()
-        {
-
-        }
-
-        public void Truncate()
-        {
-
-        }
-
-        public void Print(string componentType)
-        {
-
-        }
-
-        public void Print()
-        {
-
-        }
-
-        public void Help(string FileName)
-        {
-
-        }
-
-        public void Exit()
-        {
-
-        }
-
-    }
-
-
-
     internal class Program
     {
-        static public Menu menu = new Menu();
-
         static void Main(string[] args)
         {
-            while (true)
+            IMenu menu = new ConsolPSMenu(new List<IMenuItemStringeble>
             {
-                Console.Write("PS>");
-                var textInput = Console.ReadLine().Split(' ');
-                string command = textInput[0];
-                var data = textInput.ToList();
-                data.RemoveAt(0);
+                new CreateMenuItem(),
+                new OpenMenuItem(),
+                new InputMenuItem(),
+                new DeleteMenuItem(),
+                new RestoreMenuItem(),
+                new TruncateMenuItem(),
+                new PrintMenuItem(),
+                new HelpMenuItem(),
+                new ExitMenuItem()
+            });
 
-                var dataString = string.Join(' ', data);
-
-
-                switch (command)
-                {
-                    case "Create":
-                        menu.Create(dataString);
-                        break;
-                    case "Open":
-                        menu.Open(dataString);
-                        break;
-                    case "Input":
-                        if (data.Count == 1)
-                        {
-                            menu.Input(dataString);
-
-                        }
-                        else
-                        {
-                            menu.Input(data[0], null);
-                        }
-                        break;
-                    case "Delete":
-                        menu.Delete(dataString);
-                        break;
-                    case "Restore":
-                        if (dataString == "*")
-                        {
-                            menu.Restore();
-                            break;
-                        }
-
-                        menu.Restore(dataString);
-                        break;
-                    case "Truncate":
-                        menu.Truncate();
-                        break;
-                    case "Print":
-                        if (dataString == "*")
-                        {
-                            menu.Print();
-                            break;
-                        }
-                        menu.Print(dataString);
-                        break;
-                    case "Help":
-                        menu.Help(dataString);
-                        break;
-                    case "Exit":
-                        menu.Exit();
-                        break;
-                }
-            }
+            menu.Show();
         }
     }
 }
