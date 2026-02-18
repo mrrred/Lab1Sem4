@@ -187,7 +187,7 @@ namespace ConsoleApp21
 
 
 
-    class Program
+    internal class Program
     {
         static public Menu menu = new Menu();
 
