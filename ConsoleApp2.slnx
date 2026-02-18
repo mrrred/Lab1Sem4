@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ConsoleApp2/ConsoleApp2.csproj" />
+  <Project Path="PSListMaker/PSListMaker.csproj" Id="ea8f7961-8752-494b-adc6-5459d49a1153" />
 </Solution>
