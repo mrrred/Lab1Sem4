@@ -1,4 +1,5 @@
 ﻿using ConsoleApp2.Menu;
+using ConsoleApp2.MenuService;
 using System;
 using System.IO;
 using System.Text;
@@ -112,25 +113,24 @@ namespace ConsoleApp21
         private int _offset = -1;
     }
 
-    interface IType
-    {
-
-    }
+    
 
     internal class Program
     {
         static void Main(string[] args)
         {
+            var fileServ = new FileService();
+
             IMenu menu = new ConsolPSMenu(new List<IMenuItemStringeble>
             {
-                new CreateMenuItem(),
-                new OpenMenuItem(),
-                new InputMenuItem(),
-                new DeleteMenuItem(),
-                new RestoreMenuItem(),
-                new TruncateMenuItem(),
-                new PrintMenuItem(),
-                new HelpMenuItem(),
+                new CreateMenuItem(fileServ),
+                new OpenMenuItem(fileServ),
+                new InputMenuItem(fileServ),
+                new DeleteMenuItem(fileServ),
+                new RestoreMenuItem(fileServ),
+                new TruncateMenuItem(fileServ),
+                new PrintMenuItem(fileServ),
+                new HelpMenuItem(fileServ),
                 new ExitMenuItem()
             });
 
