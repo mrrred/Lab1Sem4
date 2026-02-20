@@ -1,4 +1,5 @@
-﻿using ConsoleApp2.MenuService;
+﻿using ConsoleApp2.Entities;
+using ConsoleApp2.MenuService;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -84,9 +85,7 @@ namespace ConsoleApp2.Menu
         public bool Invoke(string input)
         {
             Console.WriteLine(Title);
-
             _fileService.Create(input);
-
             return true;
         }
     }
@@ -100,9 +99,7 @@ namespace ConsoleApp2.Menu
         public bool Invoke(string input)
         {
             Console.WriteLine(Title);
-
             _fileService.Open(input);
-
             return true;
         }
     }
@@ -128,19 +125,29 @@ namespace ConsoleApp2.Menu
             {
                 _fileService.Input(inputSplit[0], string.Join(' ', inputSplit.Skip(1)));
             }
-            else
+            else if (inputSplit.Length == 2)
             {
-                switch (inputSplit[1])
+                if (Enum.TryParse<ComponentType>(inputSplit[1], out var type))
                 {
-                    case "Product":
-                        _fileService.Input(inputSplit[0], ComponentType.Product);
-                        break;
-                    case "Unit":
-                        _fileService.Input(inputSplit[0], ComponentType.Unit);
-                        break;
-                    case "Detail":
-                        _fileService.Input(inputSplit[0], ComponentType.Detail);
-                        break;
+                    _fileService.Input(inputSplit[0], type);
+                }
+                else
+                {
+                    _fileService.Input(inputSplit[0], inputSplit[1]);
+                }
+            }
+            else if (inputSplit.Length >= 3)
+            {
+                string component = inputSplit[0];
+                string specification = inputSplit[1];
+                
+                if (ushort.TryParse(inputSplit[2], out ushort multiplicity))
+                {
+                    _fileService.Input(component, specification, multiplicity);
+                }
+                else
+                {
+                    _fileService.Input(component, specification);
                 }
             }
 
@@ -164,7 +171,7 @@ namespace ConsoleApp2.Menu
             {
                 _fileService.Delete(inputSplit[0]);
             }
-            else
+            else if (inputSplit.Length >= 2)
             {
                 _fileService.Delete(inputSplit[0], inputSplit[1]);
             }
@@ -185,7 +192,7 @@ namespace ConsoleApp2.Menu
 
             string[] inputSplit = input.Split(' ');
 
-            if (inputSplit[0] == "*")
+            if (inputSplit.Length == 0 || inputSplit[0] == "*")
             {
                 _fileService.Restore();
             }
@@ -207,9 +214,7 @@ namespace ConsoleApp2.Menu
         public bool Invoke(string input)
         {
             Console.WriteLine(Title);
-
             _fileService.Truncate();
-
             return true;
         }
     }
@@ -226,7 +231,7 @@ namespace ConsoleApp2.Menu
 
             string[] inputSplit = input.Split(' ');
 
-            if (inputSplit[1] == "*")
+            if (inputSplit.Length == 0 || inputSplit[0] == "*")
             {
                 _fileService.Print();
             }
@@ -271,7 +276,6 @@ namespace ConsoleApp2.Menu
         public bool Invoke(string input)
         {
             Console.WriteLine(Title);
-
             return false;
         }
     }
