@@ -1,13 +1,11 @@
-﻿using ConsoleApp21;
+﻿using ConsoleApp2.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ConsoleApp2.MenuService
 {
-
-
-    interface IFileService
+    public interface IFileService
     {
         void Create(string fileName);
 
@@ -16,6 +14,8 @@ namespace ConsoleApp2.MenuService
         void Input(string componentName, ComponentType type);
 
         void Input(string componentName, string specificationName);
+
+        void Input(string componentName, string specificationName, ushort multiplicity);
 
         void Delete(string componentName);
 
@@ -34,11 +34,5 @@ namespace ConsoleApp2.MenuService
         void Help();
 
         void Help(string fileName);
-
-    }
-
-    enum ComponentType
-    {
-        Product, Unit, Detail
     }
 }
