@@ -8,23 +8,18 @@ using System.Linq;
 namespace ConsoleApp2.Data
 {
 
-    public class LLManager<T> : ILLManager<T> where T : class, IEntity
+    public class LLManager
     {
         private IFSManager _fsManager;
-        private ISerializer<T> _serializer;
-        private INodeNavigator<T> _navigator;
-        private FileHeader _header;
-        private List<T> _cache;
+        private ISerializer<Product> _productSerializer;
+        private ISerializer<Spec> _specSerializer;
+        private SortedDictionary<Product, List<Spec>> _cache;
 
-        public LLManager(
-            IFSManager fsManager,
-            ISerializer<T> serializer,
-            INodeNavigator<T> navigator)
+        public LLManager(IFSManager fsManager, ISerializer<Product> product_serializer, ISerializer<Spec> spec_serializer)
         {
             _fsManager = fsManager ?? throw new ArgumentNullException(nameof(fsManager));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
-            _cache = new List<T>();
+            _productSerializer = product_serializer ?? throw new ArgumentNullException(nameof(product_serializer));
+            _cache = new SortedDictionary<Product, List<Spec>>();
         }
 
         public void Initialize(FileHeader header)
@@ -110,7 +105,7 @@ namespace ConsoleApp2.Data
 
         public void Truncate()
         {
-            _cache.RemoveAll(e => e.IsDeleted);
+            _cache.Keys.RemoveAll(e => e.IsDeleted);
         }
 
         public T? FindByName(string name)
@@ -118,14 +113,9 @@ namespace ConsoleApp2.Data
             return _cache.FirstOrDefault(e => e.Name == name && !e.IsDeleted);
         }
 
-        public T? FindByOffset(int offset)
+        public IEnumerable<Product> GetAllProducts()
         {
-            return _cache.FirstOrDefault(e => e.FileOffset == offset);
-        }
-
-        public IEnumerable<T> GetAll()
-        {
-            return _cache.Where(e => !e.IsDeleted);
+            return _cache.Keys.Where(e => !e.IsDeleted);
         }
 
         public void Update(T entity)
@@ -144,54 +134,34 @@ namespace ConsoleApp2.Data
             _fsManager.GetStream().Flush();
         }
 
-        public IEnumerable<T> FromOffset(int startOffset)
-        {
-            if (startOffset == -1)
-                yield break;
-
-            var current = FindByOffset(startOffset);
-            while (current != null)
-            {
-                yield return current;
-                int nextOffset = _navigator.GetNextOffset(current);
-                current = nextOffset == -1 ? null : FindByOffset(nextOffset);
-            }
-        }
-
-        public void SortAlphabetically()
-        {
-            var activeItems = GetAll().OrderBy(e => e.Name).ToList();
-
-            for (int i = 0; i < activeItems.Count - 1; i++)
-            {
-                _navigator.SetNextOffset(activeItems[i], activeItems[i + 1].FileOffset);
-            }
-
-            if (activeItems.Count > 0)
-            {
-                _navigator.SetNextOffset(activeItems[activeItems.Count - 1], -1);
-                _navigator.SetFirstOffset(activeItems[0].FileOffset);
-            }
-            else
-            {
-                _navigator.SetFirstOffset(-1);
-            }
-        }
         public void LoadFromFile()
         {
             _cache.Clear();
-            int currentOffset = _navigator.GetFirstOffset();
-
+            ProductHeader header = _fsManager.ReadHeader();
+            int currentOffset = header.FirstRecPtr;
             while (currentOffset != -1)
             {
                 _fsManager.Seek(currentOffset);
                 using (var reader = new BinaryReader(_fsManager.GetStream(), System.Text.Encoding.UTF8, leaveOpen: true))
                 {
-                    var entity = _serializer.ReadFromFile(reader);
-                    entity.FileOffset = currentOffset;
-                    _cache.Add(entity);
-                    currentOffset = _navigator.GetNextOffset(entity);
+                    var product = _productSerializer.ReadFromFile(reader);
+                    product.FileOffset = currentOffset;
+                    _cache.Add(product, new List<Spec>());
+                    currentOffset = product.NextProductPtr;
                 }
+            }
+            foreach (var pair in _cache)
+            {
+                currentOffset = pair.Key.SpecPtr;
+                while (currentOffset != -1)
+                {
+                    _fsManager.Seek(currentOffset);
+                    using (var reader = new BinaryReader(_fsManager.GetStream(), System.Text.Encoding.UTF8, leaveOpen: true))
+                    {
+                        var spec = _specSerializer.ReadFromFile(reader);
+                    }
+                }
+
             }
         }
     }

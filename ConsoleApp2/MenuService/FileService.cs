@@ -9,7 +9,7 @@ namespace ConsoleApp2.MenuService
 {
     internal class FileService : IFileService
     {
-        private IProductManaging _productRepo;
+        private IRepository _productRepo;
         private ISpecManaging _specRepo;
         private string _currentProductPath;
         private string _currentSpecPath;
@@ -43,12 +43,6 @@ namespace ConsoleApp2.MenuService
                 if (!short.TryParse(args[1], out short dataLength))
                 {
                     Console.WriteLine("Error: invalid data length");
-                    return;
-                }
-
-                if (dataLength <= 0 || dataLength > 32000)
-                {
-                    Console.WriteLine("Error: data length must be between 1 and 32000");
                     return;
                 }
 
@@ -101,7 +95,7 @@ namespace ConsoleApp2.MenuService
                     return;
                 }
 
-                string specFileName = Path.GetFileNameWithoutExtension(fileName) + ".prs";
+                string specFileName = Path.GetFileNameWithoutExtension(fileName) + ".prs"; // CHANGE TO CUSTOMIZABLE!!!!!
                 
                 var tempFsManager = new FSManager(fileName, isProductFile: true);
                 tempFsManager.OpenFile();
@@ -194,7 +188,7 @@ namespace ConsoleApp2.MenuService
                 if (!ValidateFilesOpen())
                     return;
 
-                var component = _productRepo.Find(componentName);
+                var component = _repo.Find(componentName);
                 if (component == null)
                 {
                     Console.WriteLine("Error: component not found: " + componentName);
@@ -207,7 +201,7 @@ namespace ConsoleApp2.MenuService
                     return;
                 }
 
-                var specComponent = _productRepo.Find(specificationName);
+                var specComponent = _repo.Find(specificationName);
                 if (specComponent == null)
                 {
                     Console.WriteLine("Error: component not found: " + specificationName);
@@ -221,18 +215,15 @@ namespace ConsoleApp2.MenuService
                 }
 
                 var specification = new Spec(specComponent.FileOffset, multiplicity);
-                int specOffset = _specRepo.AddAndGetOffset(specification);
+                int specOffset = _repo.AddSpec(specification);
                 
-                // Link specification to component
                 if (component.SpecPtr == -1)
                 {
-                    // First specification for this component
                     component.SpecPtr = specOffset;
                     _productRepo.Update(component);
                 }
                 else
                 {
-                    // Find last specification and link it to the new one
                     var allSpecs = _specRepo.GetAll();
                     int currentSpecPtr = component.SpecPtr;
                     Spec lastSpec = null;

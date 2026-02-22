@@ -9,7 +9,7 @@ namespace ConsoleApp2.Data.Abstractions
     public interface IFSManager
     {
         FileStream GetStream();
-        void WriteHeader(FileHeader header);
+        void WriteHeader(ProductHeader header);
         FileHeader ReadHeader();
         void Seek(long offset);
         long GetPosition();

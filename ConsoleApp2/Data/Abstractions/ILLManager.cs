@@ -2,23 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using 
 
 namespace ConsoleApp2.Data.Abstractions
 {
-    public interface ILLManager<T> where T : class, IEntity
+    public interface ILLManager
     {
-        void Initialize(FileHeader header);
-        void Add(T entity, int offset);
+        void Initialize(ProductHeader header);
+        void AddProduct();
+        void AddSpec();
         void Delete(int offset);
-        void Restore(int offset);
+        void RestoreProduct(Product product);
+        void RestoreSpec();
         void RestoreAll();
         void Truncate();
-        T? FindByName(string name);
-        T? FindByOffset(int offset);
-        IEnumerable<T> GetAll();
-        IEnumerable<T> FromOffset(int startOffset);
+        Product FindProduct(string name);
+        Spec FindSpec(string prod_name, string spec_name);
         void SortAlphabetically();
         void LoadFromFile();
-        void Update(T entity);
+        void Update();
     }
 }

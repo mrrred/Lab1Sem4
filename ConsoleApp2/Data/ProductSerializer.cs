@@ -18,16 +18,14 @@ namespace ConsoleApp2.Data
             _dataLength = dataLength;
         }
 
-        public void WriteToFile(Product entity, BinaryWriter writer)
+        public void WriteToFile(Product product, BinaryWriter writer)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            writer.Write(entity.DelBit);            
-            writer.Write(entity.SpecPtr);             
-            writer.Write(entity.NextProductPtr);      
-
-            byte[] nameBytes = Encoding.UTF8.GetBytes(entity.Name ?? string.Empty);
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+            writer.Write(product.DelBit);            
+            writer.Write(product.SpecPtr);             
+            writer.Write(product.NextProductPtr);      
+            byte[] nameBytes = Encoding.UTF8.GetBytes(product.Name ?? string.Empty);
             byte[] buffer = new byte[_dataLength];
             Array.Copy(nameBytes, buffer, Math.Min(nameBytes.Length, _dataLength));
             writer.Write(buffer);                     
@@ -37,13 +35,11 @@ namespace ConsoleApp2.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-
             byte delBit = reader.ReadByte();
             int specPtr = reader.ReadInt32();
             int nextPtr = reader.ReadInt32();
             byte[] nameBytes = reader.ReadBytes(_dataLength);
             string name = Encoding.UTF8.GetString(nameBytes).TrimEnd('\0', ' ');
-
             return new Product(name, ComponentType.Product)
             {
                 DelBit = delBit,
