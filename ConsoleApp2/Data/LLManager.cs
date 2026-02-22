@@ -37,15 +37,48 @@ namespace ConsoleApp2.Data
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
+            int lastOffset = -1;
+            var allEntities = _cache.Where(e => !e.IsDeleted).ToList();
+            
+            if (allEntities.Count > 0)
+            {
+                T current = allEntities[0];
+                while (_navigator.GetNextOffset(current) != -1)
+                {
+                    int nextOffset = _navigator.GetNextOffset(current);
+                    var next = _cache.FirstOrDefault(e => e.FileOffset == nextOffset);
+                    if (next == null)
+                        break;
+                    current = next;
+                }
+                lastOffset = current.FileOffset;
+            }
 
             _fsManager.Seek(offset);
             using (var writer = new BinaryWriter(_fsManager.GetStream(), System.Text.Encoding.UTF8, leaveOpen: true))
             {
                 _serializer.WriteToFile(entity, writer);
             }
+            _fsManager.GetStream().Flush();
 
             entity.FileOffset = offset;
             _cache.Add(entity);
+
+            if (lastOffset != -1)
+            {
+                var lastEntity = _cache.FirstOrDefault(e => e.FileOffset == lastOffset);
+                if (lastEntity != null)
+                {
+                    _navigator.SetNextOffset(lastEntity, offset);
+                    
+                    _fsManager.Seek(lastOffset);
+                    using (var writer = new BinaryWriter(_fsManager.GetStream(), System.Text.Encoding.UTF8, leaveOpen: true))
+                    {
+                        _serializer.WriteToFile(lastEntity, writer);
+                    }
+                    _fsManager.GetStream().Flush();
+                }
+            }
         }
 
         public void Delete(int offset)
@@ -93,6 +126,22 @@ namespace ConsoleApp2.Data
         public IEnumerable<T> GetAll()
         {
             return _cache.Where(e => !e.IsDeleted);
+        }
+
+        public void Update(T entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            if (entity.FileOffset == -1)
+                throw new InvalidOperationException("Entity must have a valid FileOffset to update");
+
+            _fsManager.Seek(entity.FileOffset);
+            using (var writer = new BinaryWriter(_fsManager.GetStream(), System.Text.Encoding.UTF8, leaveOpen: true))
+            {
+                _serializer.WriteToFile(entity, writer);
+            }
+            _fsManager.GetStream().Flush();
         }
 
         public IEnumerable<T> FromOffset(int startOffset)

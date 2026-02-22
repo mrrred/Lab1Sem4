@@ -17,5 +17,6 @@ namespace ConsoleApp2.Data.Abstractions
         void Truncate();
         Product? Find(string productName);
         IEnumerable<Product> GetAll();
+        void Update(Product product);
     }
 }

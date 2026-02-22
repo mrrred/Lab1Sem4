@@ -42,6 +42,7 @@ namespace ConsoleApp2.Data
                     writer.Write(specBuffer);
                 }
             }
+            _fileStream.Flush();
         }
 
         public FileHeader ReadHeader()

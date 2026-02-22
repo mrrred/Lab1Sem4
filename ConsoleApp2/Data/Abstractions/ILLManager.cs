@@ -19,5 +19,6 @@ namespace ConsoleApp2.Data.Abstractions
         IEnumerable<T> FromOffset(int startOffset);
         void SortAlphabetically();
         void LoadFromFile();
+        void Update(T entity);
     }
 }

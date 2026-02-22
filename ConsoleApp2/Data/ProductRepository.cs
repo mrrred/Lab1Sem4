@@ -138,9 +138,19 @@ namespace ConsoleApp2.Data
             return _listManager.GetAll();
         }
 
+        public void Update(Product product)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+
+            _listManager.Update(product);
+            UpdateHeader();
+        }
+
         private void UpdateHeader()
         {
             _fsManager.WriteHeader(_header);
+            _fsManager.GetStream().Flush();
         }
 
         private int CalculateNextOffset()
@@ -185,6 +195,26 @@ namespace ConsoleApp2.Data
                 int currentOffset = FileStructure.HEADER_SIZE_PRODUCT;
                 int firstOffset = currentOffset;
                 
+                using (var headerWriter = new BinaryWriter(tempStream, System.Text.Encoding.UTF8, leaveOpen: true))
+                {
+                    tempStream.Seek(0, SeekOrigin.Begin);
+                    _header.FirstRecPtr = firstOffset;
+                    _header.UnclaimedPtr = -1;
+                    
+                    headerWriter.Write(System.Text.Encoding.ASCII.GetBytes(_header.Signature.PadRight(2).Substring(0, 2)));
+                    headerWriter.Write(_header.DataLength);
+                    headerWriter.Write(_header.FirstRecPtr);
+                    headerWriter.Write(_header.UnclaimedPtr);
+
+                    if (!string.IsNullOrEmpty(_header.SpecFName))
+                    {
+                        char[] specBuffer = new char[16];
+                        Array.Copy(_header.SpecFName.ToCharArray(), specBuffer, 
+                            Math.Min(_header.SpecFName.Length, 16));
+                        headerWriter.Write(specBuffer);
+                    }
+                }
+                
                 for (int i = 0; i < activeProducts.Count; i++)
                 {
                     var product = activeProducts[i];
@@ -199,8 +229,8 @@ namespace ConsoleApp2.Data
                         product.NextProductPtr = -1;
                     }
                     
-                    _fsManager.Seek(currentOffset);
-                    using (var writer = new BinaryWriter(_fsManager.GetStream(), System.Text.Encoding.UTF8, leaveOpen: true))
+                    tempStream.Seek(currentOffset, SeekOrigin.Begin);
+                    using (var writer = new BinaryWriter(tempStream, System.Text.Encoding.UTF8, leaveOpen: true))
                     {
                         _serializer.WriteToFile(product, writer);
                     }
@@ -208,15 +238,15 @@ namespace ConsoleApp2.Data
                     currentOffset += _serializer.GetEntitySize();
                 }
                 
-                _header.FirstRecPtr = firstOffset;
-                _header.UnclaimedPtr = -1;
-                
-                _fsManager.Seek(0);
-                using (var writer = new BinaryWriter(_fsManager.GetStream(), System.Text.Encoding.UTF8, leaveOpen: true))
-                {
-                    _fsManager.WriteHeader(_header);
-                }
+                tempStream.Flush();
             }
+            
+            _fsManager.Close();
+            File.Delete(_filePath);
+            File.Move(tempPath, _filePath);
+            
+            // Reopen the file
+            ((FSManager)_fsManager).OpenFile();
         }
     }
 }

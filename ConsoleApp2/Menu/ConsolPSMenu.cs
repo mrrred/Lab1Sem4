@@ -114,30 +114,37 @@ namespace ConsoleApp2.Menu
         {
             Console.WriteLine(Title);
 
-            string[] inputSplit = input.Split(' ');
+            string[] inputSplit = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             if (inputSplit.Length == 0)
             {
-                throw new ArgumentException("Not enough arguments");
+                Console.WriteLine("Error: not enough arguments");
+                return true;
             }
 
             if (inputSplit.Length == 1)
             {
-                _fileService.Input(inputSplit[0], string.Join(' ', inputSplit.Skip(1)));
+                // Only one argument - error
+                Console.WriteLine("Error: not enough arguments");
+                return true;
             }
             else if (inputSplit.Length == 2)
             {
-                if (Enum.TryParse<ComponentType>(inputSplit[1], out var type))
+                // Two arguments - could be "name type" or "component specification"
+                if (Enum.TryParse<ComponentType>(inputSplit[1], ignoreCase: true, out var type))
                 {
+                    // It's a component type
                     _fileService.Input(inputSplit[0], type);
                 }
                 else
                 {
+                    // It's a specification
                     _fileService.Input(inputSplit[0], inputSplit[1]);
                 }
             }
             else if (inputSplit.Length >= 3)
             {
+                // Three or more arguments - specification with multiplicity
                 string component = inputSplit[0];
                 string specification = inputSplit[1];
                 
@@ -165,7 +172,7 @@ namespace ConsoleApp2.Menu
         {
             Console.WriteLine(Title);
 
-            string[] inputSplit = input.Split(' ');
+            string[] inputSplit = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             if (inputSplit.Length == 1)
             {
@@ -174,6 +181,10 @@ namespace ConsoleApp2.Menu
             else if (inputSplit.Length >= 2)
             {
                 _fileService.Delete(inputSplit[0], inputSplit[1]);
+            }
+            else
+            {
+                Console.WriteLine("Error: not enough arguments");
             }
 
             return true;
@@ -190,15 +201,13 @@ namespace ConsoleApp2.Menu
         {
             Console.WriteLine(Title);
 
-            string[] inputSplit = input.Split(' ');
-
-            if (inputSplit.Length == 0 || inputSplit[0] == "*")
+            if (string.IsNullOrWhiteSpace(input) || input.Trim() == "*")
             {
                 _fileService.Restore();
             }
             else
             {
-                _fileService.Restore(inputSplit[0]);
+                _fileService.Restore(input.Trim());
             }
 
             return true;
@@ -229,15 +238,13 @@ namespace ConsoleApp2.Menu
         {
             Console.WriteLine(Title);
 
-            string[] inputSplit = input.Split(' ');
-
-            if (inputSplit.Length == 0 || inputSplit[0] == "*")
+            if (string.IsNullOrWhiteSpace(input) || input.Trim() == "*")
             {
                 _fileService.Print();
             }
             else
             {
-                _fileService.Print(inputSplit[0]);
+                _fileService.Print(input.Trim());
             }
 
             return true;
@@ -254,15 +261,13 @@ namespace ConsoleApp2.Menu
         {
             Console.WriteLine(Title);
 
-            string[] inputSplit = input.Split(' ');
-
-            if (inputSplit.Length == 0)
+            if (string.IsNullOrWhiteSpace(input))
             {
                 _fileService.Help();
             }
             else
             {
-                _fileService.Help(inputSplit[0]);
+                _fileService.Help(input.Trim());
             }
 
             return true;

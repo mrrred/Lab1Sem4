@@ -11,6 +11,7 @@ namespace ConsoleApp2.Data.Abstractions
         void Open(string filePath);
         void Close();
         void Add(Spec spec);
+        int AddAndGetOffset(Spec spec);
         void Delete(int specOffset);
         void Restore(int specOffset);
         void RestoreAll();
@@ -18,5 +19,7 @@ namespace ConsoleApp2.Data.Abstractions
         Spec? FindByOffset(int offset);
         IEnumerable<Spec> GetByProductOffset(int productOffset);
         IEnumerable<Spec> GetByComponentPtr(int componentOffset);
+        IEnumerable<Spec> GetAll();
+        void Update(Spec spec);
     }
 }
