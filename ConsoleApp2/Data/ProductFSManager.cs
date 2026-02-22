@@ -37,7 +37,7 @@ namespace ConsoleApp2.Data
             _fileStream.Flush();
         }
 
-        public ProductHeader ReadProductHeader()
+        public ProductHeader ReadHeader()
         {
             if (_fileStream == null)
                 throw new InvalidOperationException("File not opened");
@@ -51,11 +51,22 @@ namespace ConsoleApp2.Data
                 if (signature != "PS")
                     throw new InvalidOperationException("Invalid file signature");
 
+                short dataLength = reader.ReadInt16();
+                int firstRecPtr = reader.ReadInt32();
+                int unclaimedPtr = reader.ReadInt32();
                 char[] specName = reader.ReadChars(16);
-                var header = new ProductHeader(signature, reader.ReadInt16(), reader.ReadInt32(), reader.ReadInt32(), new string(specName).TrimEnd());
+                
+                string specFileName = new string(specName).TrimEnd('\0');
+                
+                var header = new ProductHeader(signature, dataLength, firstRecPtr, unclaimedPtr, specFileName);
 
                 return header;
             }
+        }
+
+        public ProductHeader ReadProductHeader()
+        {
+            return ReadHeader();
         }
     }
 }

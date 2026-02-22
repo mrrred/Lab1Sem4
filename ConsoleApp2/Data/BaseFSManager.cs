@@ -42,6 +42,7 @@ namespace ConsoleApp2.Data
 
             _fileStream = new FileStream(_filePath, FileMode.CreateNew, FileAccess.ReadWrite);
         }
+        
         public void OpenFile()
         {
             if (!File.Exists(_filePath))

@@ -124,27 +124,22 @@ namespace ConsoleApp2.Menu
 
             if (inputSplit.Length == 1)
             {
-                // Only one argument - error
                 Console.WriteLine("Error: not enough arguments");
                 return true;
             }
             else if (inputSplit.Length == 2)
             {
-                // Two arguments - could be "name type" or "component specification"
                 if (Enum.TryParse<ComponentType>(inputSplit[1], ignoreCase: true, out var type))
                 {
-                    // It's a component type
                     _fileService.Input(inputSplit[0], type);
                 }
                 else
                 {
-                    // It's a specification
                     _fileService.Input(inputSplit[0], inputSplit[1]);
                 }
             }
             else if (inputSplit.Length >= 3)
             {
-                // Three or more arguments - specification with multiplicity
                 string component = inputSplit[0];
                 string specification = inputSplit[1];
                 
@@ -274,9 +269,11 @@ namespace ConsoleApp2.Menu
         }
     }
 
-    internal class ExitMenuItem : IMenuItemStringeble
+    internal class ExitMenuItem : PSMenuItem, IMenuItemStringeble
     {
         public string Title { get; private set; } = "Exit";
+
+        public ExitMenuItem(IFileService fileService) : base(fileService) { }
 
         public bool Invoke(string input)
         {

@@ -1,9 +1,9 @@
-﻿using ConsoleApp2.Menu;
-using ConsoleApp2.MenuService;
+﻿using ConsoleApp2.MenuService;
+using ConsoleApp2.Menu;
 using System;
 using System.Collections.Generic;
 
-namespace ConsoleApp21
+namespace ConsoleApp2
 {
     internal class Program
     {
@@ -23,7 +23,7 @@ namespace ConsoleApp21
                 new TruncateMenuItem(fileService),
                 new PrintMenuItem(fileService),
                 new HelpMenuItem(fileService),
-                new ExitMenuItem()
+                new ExitMenuItem(fileService)
             });
 
             menu.Show();

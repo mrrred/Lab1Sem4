@@ -12,10 +12,10 @@ namespace ConsoleApp2.Data
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            writer.Write(entity.DelBit);            
-            writer.Write(entity.ComponentPtr);        
-            writer.Write(entity.Multiplicity);        
-            writer.Write(entity.NextSpecPtr);        
+            writer.Write(entity.DelBit);
+            writer.Write(entity.ComponentPtr);
+            writer.Write(entity.Multiplicity);
+            writer.Write(entity.NextSpecPtr);
         }
 
         public Spec ReadFromFile(BinaryReader reader)
@@ -28,13 +28,15 @@ namespace ConsoleApp2.Data
             ushort multiplicity = reader.ReadUInt16();
             int nextPtr = reader.ReadInt32();
 
-            return new Spec(componentPtr, multiplicity)
+            Spec spec = new Spec(componentPtr, multiplicity)
             {
                 DelBit = delBit,
                 NextSpecPtr = nextPtr
             };
+            
+            return spec;
         }
 
-        public int GetEntitySize() => 1 + FileStructure.POINTER_SIZE + 2 + FileStructure.POINTER_SIZE; 
+        public int GetEntitySize() => 1 + 4 + 2 + 4;
     }
 }

@@ -1,7 +1,7 @@
-﻿using ConsoleApp2.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ConsoleApp2.Entities;
 
 namespace ConsoleApp2.Data.Abstractions
 {
@@ -15,7 +15,7 @@ namespace ConsoleApp2.Data.Abstractions
         void Restore(string productName);
         void RestoreAll();
         void Truncate();
-        Product? Find(string productName);
+        Product Find(string productName);
         IEnumerable<Product> GetAll();
     }
 }

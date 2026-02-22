@@ -6,7 +6,6 @@ using System.Text;
 
 namespace ConsoleApp2.Data
 {
-
     public class ProductSerializer : ISerializer<Product>
     {
         private short _dataLength;
@@ -14,7 +13,7 @@ namespace ConsoleApp2.Data
         public ProductSerializer(short dataLength)
         {
             if (dataLength <= 0)
-                throw new ArgumentException("Длина данных должна быть положительной", nameof(dataLength));
+                throw new ArgumentException("Data length must be positive", nameof(dataLength));
             _dataLength = dataLength;
         }
 
@@ -22,32 +21,40 @@ namespace ConsoleApp2.Data
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
-            writer.Write(product.DelBit);            
-            writer.Write(product.SpecPtr);             
-            writer.Write(product.NextProductPtr);      
+            
+            writer.Write(product.DelBit);
+            writer.Write((byte)product.Type);
+            writer.Write(product.SpecPtr);
+            writer.Write(product.NextProductPtr);
+            
             byte[] nameBytes = Encoding.UTF8.GetBytes(product.Name ?? string.Empty);
             byte[] buffer = new byte[_dataLength];
             Array.Copy(nameBytes, buffer, Math.Min(nameBytes.Length, _dataLength));
-            writer.Write(buffer);                     
+            writer.Write(buffer);
         }
 
         public Product ReadFromFile(BinaryReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
+            
             byte delBit = reader.ReadByte();
+            ComponentType type = (ComponentType)reader.ReadByte();
             int specPtr = reader.ReadInt32();
             int nextPtr = reader.ReadInt32();
             byte[] nameBytes = reader.ReadBytes(_dataLength);
             string name = Encoding.UTF8.GetString(nameBytes).TrimEnd('\0', ' ');
-            return new Product(name, ComponentType.Product)
+            
+            Product product = new Product(name, type)
             {
                 DelBit = delBit,
                 SpecPtr = specPtr,
                 NextProductPtr = nextPtr
             };
+            
+            return product;
         }
 
-        public int GetEntitySize() => FileStructure.POINTER_SIZE + FileStructure.POINTER_SIZE + FileStructure.POINTER_SIZE + _dataLength; 
+        public int GetEntitySize() => 1 + 1 + 4 + 4 + _dataLength;
     }
 }

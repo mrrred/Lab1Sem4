@@ -1,8 +1,7 @@
-﻿using ConsoleApp2.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using 
+using ConsoleApp2.Entities;
 
 namespace ConsoleApp2.Data.Abstractions
 {

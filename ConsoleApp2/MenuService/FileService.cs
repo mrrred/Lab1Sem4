@@ -9,21 +9,13 @@ namespace ConsoleApp2.MenuService
 {
     internal class FileService : IFileService
     {
-        private IRepository _productRepo;
-        private ISpecManaging _specRepo;
-        private string _currentProductPath;
-        private string _currentSpecPath;
+        private Repository _productRepo;
         private bool _filesOpen;
-        private short _currentDataLength;
 
         public FileService()
         {
-            _productRepo = null;
-            _specRepo = null;
-            _currentProductPath = null;
-            _currentSpecPath = null;
+            _productRepo = null!;
             _filesOpen = false;
-            _currentDataLength = 50;
         }
 
         public void Create(string arguments)
@@ -46,6 +38,12 @@ namespace ConsoleApp2.MenuService
                     return;
                 }
 
+                if (dataLength <= 0 || dataLength > 32000)
+                {
+                    Console.WriteLine("Error: data length must be between 1 and 32000");
+                    return;
+                }
+
                 string specFileName = args.Length > 2 ? args[2] :
                     Path.GetFileNameWithoutExtension(fileName) + ".prs";
 
@@ -54,6 +52,9 @@ namespace ConsoleApp2.MenuService
                 if (!specFileName.EndsWith(".prs"))
                     specFileName += ".prs";
 
+                string fullPath = fileName;
+                string specFilePath = specFileName;
+
                 if (File.Exists(fileName))
                 {
                     Console.Write("File exists. Overwrite? (y/n): ");
@@ -61,13 +62,14 @@ namespace ConsoleApp2.MenuService
                         return;
                 }
 
-                InitializeRepositories(fileName, specFileName, dataLength);
-                
-                _productRepo.Create(fileName, dataLength, Path.GetFileName(specFileName));
-                _specRepo.Create(specFileName);
-                _currentProductPath = fileName;
-                _currentSpecPath = specFileName;
-                _currentDataLength = dataLength;
+                var productFs = new ProductFSManager(fullPath);
+                var productSerializer = new ProductSerializer(dataLength);
+                var specFs = new SpecFSManager(specFilePath);
+                var specSerializer = new SpecSerializer();
+
+                _productRepo = new Repository(productFs, specFs, productSerializer, specSerializer);
+                _productRepo.Create(fullPath, dataLength, specFileName);
+
                 _filesOpen = true;
             }
             catch (Exception ex)
@@ -88,70 +90,45 @@ namespace ConsoleApp2.MenuService
 
                 if (!fileName.EndsWith(".prd"))
                     fileName += ".prd";
-
+                
                 if (!File.Exists(fileName))
                 {
                     Console.WriteLine("Error: file not found: " + fileName);
                     return;
                 }
 
-                string specFileName = Path.GetFileNameWithoutExtension(fileName) + ".prs"; // CHANGE TO CUSTOMIZABLE!!!!!
-                
-                var tempFsManager = new FSManager(fileName, isProductFile: true);
-                tempFsManager.OpenFile();
-                var header = tempFsManager.ReadHeader();
-                tempFsManager.Close();
-                
-                _currentDataLength = header.DataLength;
-                
-                InitializeRepositories(fileName, specFileName, _currentDataLength);
-                
-                _productRepo.Open(fileName);
-                _specRepo.Open(specFileName);
+                var fullPath = fileName;
+                string directory = Path.GetDirectoryName(fullPath);
+                if (string.IsNullOrEmpty(directory))
+                    directory = ".";
 
-                _currentProductPath = fileName;
-                _currentSpecPath = specFileName;
+                var productFs = new ProductFSManager(fullPath);
+                productFs.OpenFile();
+                var productHeader = productFs.ReadHeader();
+
+                var productSerializer = new ProductSerializer(productHeader.DataLength);
+                string specFileName = productHeader.SpecFileName;
+                string specFilePath = Path.Combine(directory, specFileName);
+
+                if (!File.Exists(specFilePath))
+                {
+                    Console.WriteLine("Error: specification file not found: " + specFilePath);
+                    productFs.Close();
+                    return;
+                }
+
+                var specFs = new SpecFSManager(specFilePath);
+                var specSerializer = new SpecSerializer();
+
+                _productRepo = new Repository(productFs, specFs, productSerializer, specSerializer);
+                _productRepo.Open(fullPath);
+
                 _filesOpen = true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message);
             }
-        }
-
-        private void InitializeRepositories(string productFileName, string specFileName, short dataLength)
-        {
-            var productFsManager = new FSManager(productFileName, isProductFile: true);
-            var productSerializer = new ProductSerializer(dataLength: dataLength);
-            var productHeader = new FileHeader();
-            var productNodeNavigator = new ProductNodeNavigator(productHeader);
-            var productListManager = new LLManager<Product>(
-                productFsManager,
-                productSerializer,
-                productNodeNavigator
-            );
-            _productRepo = new ProductRepository(
-                productFsManager,
-                productSerializer,
-                productListManager,
-                productNodeNavigator
-            );
-
-            var specFsManager = new FSManager(specFileName, isProductFile: false);
-            var specSerializer = new SpecSerializer();
-            var specHeader = new FileHeader();
-            var specNodeNavigator = new SpecNodeNavigator(specHeader);
-            var specListManager = new LLManager<Spec>(
-                specFsManager,
-                specSerializer,
-                specNodeNavigator
-            );
-            _specRepo = new SpecRepository(
-                specFsManager,
-                specSerializer,
-                specListManager,
-                specNodeNavigator
-            );
         }
 
         public void Input(string componentName, ComponentType type)
@@ -169,6 +146,11 @@ namespace ConsoleApp2.MenuService
 
                 var product = new Product(componentName, type);
                 _productRepo.Add(product);
+            }
+            catch (NullReferenceException ex)
+            {
+                Console.WriteLine("Error: NullReferenceException - " + ex.Message);
+                Console.WriteLine("StackTrace: " + ex.StackTrace);
             }
             catch (Exception ex)
             {
@@ -188,7 +170,7 @@ namespace ConsoleApp2.MenuService
                 if (!ValidateFilesOpen())
                     return;
 
-                var component = _repo.Find(componentName);
+                var component = _productRepo.Find(componentName);
                 if (component == null)
                 {
                     Console.WriteLine("Error: component not found: " + componentName);
@@ -201,7 +183,7 @@ namespace ConsoleApp2.MenuService
                     return;
                 }
 
-                var specComponent = _repo.Find(specificationName);
+                var specComponent = _productRepo.Find(specificationName);
                 if (specComponent == null)
                 {
                     Console.WriteLine("Error: component not found: " + specificationName);
@@ -214,36 +196,8 @@ namespace ConsoleApp2.MenuService
                     return;
                 }
 
-                var specification = new Spec(specComponent.FileOffset, multiplicity);
-                int specOffset = _repo.AddSpec(specification);
-                
-                if (component.SpecPtr == -1)
-                {
-                    component.SpecPtr = specOffset;
-                    _productRepo.Update(component);
-                }
-                else
-                {
-                    var allSpecs = _specRepo.GetAll();
-                    int currentSpecPtr = component.SpecPtr;
-                    Spec lastSpec = null;
-                    
-                    while (currentSpecPtr != -1)
-                    {
-                        var spec = allSpecs.FirstOrDefault(s => s.FileOffset == currentSpecPtr);
-                        if (spec == null || spec.IsDeleted)
-                            break;
-                        
-                        lastSpec = spec;
-                        currentSpecPtr = spec.NextSpecPtr;
-                    }
-                    
-                    if (lastSpec != null)
-                    {
-                        lastSpec.NextSpecPtr = specOffset;
-                        _specRepo.Update(lastSpec);
-                    }
-                }
+                var spec = new Spec(specComponent.FileOffset, multiplicity);
+                _productRepo.AddSpec(component, spec);
             }
             catch (Exception ex)
             {
@@ -265,14 +219,6 @@ namespace ConsoleApp2.MenuService
                     return;
                 }
 
-                var referencesInSpecs = _specRepo.GetByComponentPtr(product.FileOffset).Where(s => !s.IsDeleted).ToList();
-                
-                if (referencesInSpecs.Count > 0)
-                {
-                    Console.WriteLine("Error: cannot delete component, it is referenced in specifications");
-                    return;
-                }
-
                 _productRepo.Delete(componentName);
             }
             catch (Exception ex)
@@ -291,66 +237,28 @@ namespace ConsoleApp2.MenuService
                 var component = _productRepo.Find(componentName);
                 if (component == null)
                 {
-                    Console.WriteLine("component not found: " + componentName);
+                    Console.WriteLine("Error: component not found: " + componentName);
                     return;
                 }
 
                 if (component.Type == ComponentType.Detail)
                 {
-                    Console.WriteLine("detail cannot contain components");
+                    Console.WriteLine("Error: detail cannot contain components");
                     return;
                 }
 
                 var specComponent = _productRepo.Find(specificationName);
                 if (specComponent == null)
                 {
-                    Console.WriteLine("component not found: " + specificationName);
+                    Console.WriteLine("Error: component not found: " + specificationName);
                     return;
                 }
 
-                var allSpecs = _specRepo.GetAll();
-                int currentSpecPtr = component.SpecPtr;
-                Spec specToDelete = null;
-                Spec prevSpec = null;
-
-                while (currentSpecPtr != -1)
-                {
-                    var spec = allSpecs.FirstOrDefault(s => s.FileOffset == currentSpecPtr);
-                    if (spec == null || spec.IsDeleted)
-                        break;
-
-                    if (spec.ComponentPtr == specComponent.FileOffset)
-                    {
-                        specToDelete = spec;
-                        break;
-                    }
-
-                    prevSpec = spec;
-                    currentSpecPtr = spec.NextSpecPtr;
-                }
-
-                if (specToDelete == null)
-                {
-                    Console.WriteLine("specification not found");
-                    return;
-                }
-
-                _specRepo.Delete(specToDelete.FileOffset);
-
-                if (prevSpec != null)
-                {
-                    prevSpec.NextSpecPtr = specToDelete.NextSpecPtr;
-                    _specRepo.Update(prevSpec);
-                }
-                else if (component.SpecPtr == specToDelete.FileOffset)
-                {
-                    component.SpecPtr = specToDelete.NextSpecPtr;
-                    _productRepo.Update(component);
-                }
+                _productRepo.DeleteSpec(component, specificationName);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error: " + ex.Message);
             }
         }
 
@@ -364,32 +272,15 @@ namespace ConsoleApp2.MenuService
                 var product = _productRepo.Find(componentName);
                 if (product == null)
                 {
-                    Console.WriteLine("component not found: " + componentName);
+                    Console.WriteLine("Error: component not found: " + componentName);
                     return;
                 }
 
                 _productRepo.Restore(componentName);
-                
-                var allSpecs = _specRepo.GetAll();
-                int currentSpecPtr = product.SpecPtr;
-                
-                while (currentSpecPtr != -1)
-                {
-                    var spec = allSpecs.FirstOrDefault(s => s.FileOffset == currentSpecPtr);
-                    if (spec == null)
-                        break;
-                    
-                    if (spec.IsDeleted)
-                    {
-                        _specRepo.Restore(spec.FileOffset);
-                    }
-                    
-                    currentSpecPtr = spec.NextSpecPtr;
-                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error: " + ex.Message);
             }
         }
 
@@ -401,11 +292,10 @@ namespace ConsoleApp2.MenuService
                     return;
 
                 _productRepo.RestoreAll();
-                _specRepo.RestoreAll();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error: " + ex.Message);
             }
         }
 
@@ -417,11 +307,10 @@ namespace ConsoleApp2.MenuService
                     return;
 
                 _productRepo.Truncate();
-                _specRepo.Truncate();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error: " + ex.Message);
             }
         }
 
@@ -435,13 +324,13 @@ namespace ConsoleApp2.MenuService
                 var component = _productRepo.Find(componentName);
                 if (component == null)
                 {
-                    Console.WriteLine("component not found: " + componentName);
+                    Console.WriteLine("Error: component not found: " + componentName);
                     return;
                 }
 
                 if (component.Type == ComponentType.Detail)
                 {
-                    Console.WriteLine("detail cannot contain components");
+                    Console.WriteLine("Error: detail cannot contain components");
                     return;
                 }
 
@@ -449,7 +338,7 @@ namespace ConsoleApp2.MenuService
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error: " + ex.Message);
             }
         }
 
@@ -460,10 +349,10 @@ namespace ConsoleApp2.MenuService
                 if (!ValidateFilesOpen())
                     return;
 
-                Console.WriteLine("Name Type");
+                Console.WriteLine("{0,-20} {1}", "Name", "Type");
                 foreach (var product in _productRepo.GetAll().OrderBy(p => p.Name))
                 {
-                    Console.WriteLine(product.Name + " " + product.Type);
+                    Console.WriteLine("{0,-20} {1}", product.Name, product.Type);
                 }
             }
             catch (Exception ex)
@@ -482,7 +371,7 @@ namespace ConsoleApp2.MenuService
             PrintHelp(fileName);
         }
 
-        private void PrintHelp(string? fileName)
+        private void PrintHelp(string fileName)
         {
             var helpText = new[]
             {
@@ -490,9 +379,9 @@ namespace ConsoleApp2.MenuService
                 "Open <filename> - Open files",
                 "Input <name> <type> - Add component (Product, Node, Detail)",
                 "Input <component> <component> [multiplicity] - Add to specification",
-                "Delete <name> - Delete component (if no references)",
+                "Delete <name> - Delete component",
                 "Delete <component> <component> - Delete from specification",
-                "Restore <name> - Restore component and its specifications",
+                "Restore <name> - Restore component",
                 "Restore (*) - Restore all",
                 "Truncate - Physical deletion",
                 "Print <name> - Show specification",
@@ -514,7 +403,7 @@ namespace ConsoleApp2.MenuService
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Error: " + ex.Message);
                 }
             }
         }
@@ -523,7 +412,7 @@ namespace ConsoleApp2.MenuService
         {
             if (!_filesOpen)
             {
-                Console.WriteLine("files not open");
+                Console.WriteLine("Error: files not open");
                 return false;
             }
             return true;
@@ -531,39 +420,29 @@ namespace ConsoleApp2.MenuService
 
         private void PrintComponentTree(Product component, string prefix)
         {
-            Console.WriteLine(prefix + component.Name + " (" + component.Type + ")");
+            Console.WriteLine(prefix + component.Name);
 
             if (component.Type == ComponentType.Detail || component.SpecPtr == -1)
                 return;
 
-            var allSpecs = _specRepo.GetAll();
-            var specList = new List<Spec>();
-            
-            int currentSpecPtr = component.SpecPtr;
-            while (currentSpecPtr != -1)
-            {
-                var spec = allSpecs.FirstOrDefault(s => s.FileOffset == currentSpecPtr);
-                if (spec == null || spec.IsDeleted)
-                    break;
-                
-                specList.Add(spec);
-                currentSpecPtr = spec.NextSpecPtr;
-            }
+            var allProducts = _productRepo.GetAll().ToList();
+            var allSpecs = _productRepo.GetSpecsForProduct(component.FileOffset).ToList();
+            var specList = allSpecs.Where(s => !s.IsDeleted).ToList();
 
             for (int i = 0; i < specList.Count; i++)
             {
                 var spec = specList[i];
-                var child = _productRepo.GetAll().FirstOrDefault(p => p.FileOffset == spec.ComponentPtr);
+                var child = allProducts.FirstOrDefault(p => p.FileOffset == spec.ComponentPtr);
 
                 if (child != null)
                 {
                     string multiplicity = spec.Multiplicity > 1 ? " (x" + spec.Multiplicity + ")" : "";
-                    string connector = i == specList.Count - 1 ? "└─ " : "├─ ";
-                    Console.WriteLine(prefix + connector + child.Name + " (" + child.Type + ")" + multiplicity);
+                    string connector = i == specList.Count - 1 ? "└─" : "├─";
+                    Console.WriteLine(prefix + connector + " " + child.Name + multiplicity);
                     
                     if (child.Type != ComponentType.Detail)
                     {
-                        string newPrefix = prefix + (i == specList.Count - 1 ? "   " : "│  ");
+                        string newPrefix = prefix + (i == specList.Count - 1 ? "  " : "│ ");
                         PrintComponentTree(child, newPrefix);
                     }
                 }

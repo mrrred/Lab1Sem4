@@ -10,9 +10,11 @@ namespace ConsoleApp2.Data.Abstractions
     {
         FileStream GetStream();
         void WriteHeader(ProductHeader header);
-        FileHeader ReadHeader();
+        ProductHeader ReadHeader();
         void Seek(long offset);
         long GetPosition();
         void Close();
+        void CreateFile();
+        void OpenFile();
     }
 }
