@@ -16,6 +16,7 @@ namespace ConsoleApp2.Data.Abstractions
         void RestoreAll();
         void Truncate();
         Product Find(string productName);
+        Product FindIncludeDeleted(string productName);
         IEnumerable<Product> GetAll();
     }
 }

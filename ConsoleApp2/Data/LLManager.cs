@@ -117,6 +117,18 @@ namespace ConsoleApp2.Data
             {
                 product.Restore();
                 UpdateProduct(product);
+                
+                if (_specListCache.ContainsKey(product.FileOffset))
+                {
+                    foreach (var spec in _specListCache[product.FileOffset])
+                    {
+                        if (spec.IsDeleted)
+                        {
+                            spec.Restore();
+                            UpdateSpec(spec);
+                        }
+                    }
+                }
             }
         }
 
@@ -162,6 +174,13 @@ namespace ConsoleApp2.Data
         public Product FindByName(string name)
         {
             if (_productCache.TryGetValue(name, out var product) && !product.IsDeleted)
+                return product;
+            return null;
+        }
+
+        public Product FindByNameIncludeDeleted(string name)
+        {
+            if (_productCache.TryGetValue(name, out var product))
                 return product;
             return null;
         }

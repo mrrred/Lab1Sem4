@@ -185,6 +185,11 @@ namespace ConsoleApp2.Data
             return _listManager.FindByName(productName);
         }
 
+        public Product FindIncludeDeleted(string productName)
+        {
+            return _listManager.FindByNameIncludeDeleted(productName);
+        }
+
         public IEnumerable<Product> GetAll()
         {
             return _listManager.GetAllProducts();

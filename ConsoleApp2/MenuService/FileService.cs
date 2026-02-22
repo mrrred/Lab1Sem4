@@ -269,7 +269,7 @@ namespace ConsoleApp2.MenuService
                 if (!ValidateFilesOpen())
                     return;
 
-                var product = _productRepo.Find(componentName);
+                var product = _productRepo.FindIncludeDeleted(componentName);
                 if (product == null)
                 {
                     Console.WriteLine("Error: component not found: " + componentName);
