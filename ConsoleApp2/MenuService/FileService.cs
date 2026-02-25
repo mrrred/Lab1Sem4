@@ -418,9 +418,10 @@ namespace ConsoleApp2.MenuService
             return true;
         }
 
-        private void PrintComponentTree(Product component, string prefix)
+        private void PrintComponentTree(Product component, string prefix, bool printName = true)
         {
-            Console.WriteLine(prefix + component.Name);
+            if (printName)
+                Console.WriteLine(prefix + component.Name);
 
             if (component.Type == ComponentType.Detail || component.SpecPtr == -1)
                 return;
@@ -439,11 +440,11 @@ namespace ConsoleApp2.MenuService
                     string multiplicity = spec.Multiplicity > 1 ? " (x" + spec.Multiplicity + ")" : "";
                     string connector = i == specList.Count - 1 ? "└─" : "├─";
                     Console.WriteLine(prefix + connector + " " + child.Name + multiplicity);
-                    
+
                     if (child.Type != ComponentType.Detail)
                     {
-                        string newPrefix = prefix + (i == specList.Count - 1 ? "  " : "│ ");
-                        PrintComponentTree(child, newPrefix);
+                        string newPrefix = prefix + (i == specList.Count - 1 ? "   " : "│  ");
+                        PrintComponentTree(child, newPrefix, false);
                     }
                 }
             }
