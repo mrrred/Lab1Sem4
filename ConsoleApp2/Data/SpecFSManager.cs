@@ -16,7 +16,7 @@ namespace ConsoleApp2.Data
         public void WriteHeader(SpecHeader header)
         {
             if (_fileStream == null)
-                throw new InvalidOperationException("File not opened");
+                throw new InvalidOperationException("File not opened.");
 
             using (var writer = new BinaryWriter(_fileStream, Encoding.UTF8, leaveOpen: true))
             {
@@ -30,7 +30,7 @@ namespace ConsoleApp2.Data
         public SpecHeader ReadHeader()
         {
             if (_fileStream == null)
-                throw new InvalidOperationException("File not opened");
+                throw new InvalidOperationException("File not opened.");
 
             using (var reader = new BinaryReader(_fileStream, Encoding.UTF8, leaveOpen: true))
             {

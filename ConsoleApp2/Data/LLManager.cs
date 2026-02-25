@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.IO;
 
 namespace ConsoleApp2.Data
 {
@@ -31,7 +32,7 @@ namespace ConsoleApp2.Data
 
         public void Initialize(ProductHeader productHeader)
         {
-            _productHeader = productHeader ?? throw new ArgumentNullException(nameof(productHeader));
+            _productHeader = productHeader ?? throw new ArgumentNullException(nameof(productHeader), "Product header is null.");
             _productCache.Clear();
             _specHeaderCache.Clear();
             _specListCache.Clear();
@@ -40,10 +41,10 @@ namespace ConsoleApp2.Data
         public void AddProduct(Product product)
         {
             if (product == null)
-                throw new ArgumentNullException(nameof(product));
+                throw new ArgumentNullException(nameof(product), "Product is null.");
 
             if (_productCache.ContainsKey(product.Name))
-                throw new InvalidOperationException("Component already exists: " + product.Name);
+                throw new InvalidOperationException("Component already exists.");
 
             int offset = (int)_productFsManager.GetStream().Length;
             product.FileOffset = offset;
@@ -64,7 +65,7 @@ namespace ConsoleApp2.Data
         public void AddSpec(int productOffset, Spec spec)
         {
             if (spec == null)
-                throw new ArgumentNullException(nameof(spec));
+                throw new ArgumentNullException(nameof(spec), "Spec is null.");
 
             if (!_specListCache.ContainsKey(productOffset))
                 _specListCache[productOffset] = new List<Spec>();
@@ -161,14 +162,156 @@ namespace ConsoleApp2.Data
 
         public void Truncate()
         {
-            _productCache = _productCache
-                .Where(p => !p.Value.IsDeleted)
-                .ToDictionary(p => p.Key, p => p.Value);
 
-            foreach (var key in _specListCache.Keys.ToList())
+            var activeProducts = _productCache.Values
+                .Where(p => !p.IsDeleted)
+                .OrderBy(p => p.FileOffset)
+                .ToList();
+
+            if (activeProducts.Count == 0)
             {
-                _specListCache[key] = _specListCache[key].Where(s => !s.IsDeleted).ToList();
+                _productCache.Clear();
+                _specHeaderCache.Clear();
+                _specListCache.Clear();
+
+                _productFsManager.CreateFile();
+                _specFsManager.CreateFile();
+
+                _productHeader.FirstRecPtr = -1;
+                _productHeader.UnclaimedPtr = ProductHeader.GetHeaderSize();
+                _productFsManager.WriteHeader(_productHeader);
+
+                return;
             }
+
+            var specsByProductIndex = new Dictionary<int, List<Spec>>();
+
+            for (int i = 0; i < activeProducts.Count; i++)
+            {
+                if (_specListCache.TryGetValue(activeProducts[i].FileOffset, out var specs))
+                {
+                    var activeSpecs = specs
+                        .Where(s => !s.IsDeleted)
+                        .OrderBy(s => s.FileOffset)
+                        .ToList();
+
+                    if (activeSpecs.Count > 0)
+                    {
+                        specsByProductIndex[i] = activeSpecs;
+                    }
+                }
+            }
+
+            int productHeaderSize = ProductHeader.GetHeaderSize();
+            int productEntitySize = _productSerializer.GetEntitySize();
+            int newProductOffset = productHeaderSize;
+
+            for (int i = 0; i < activeProducts.Count; i++)
+            {
+                activeProducts[i].FileOffset = newProductOffset;
+
+                activeProducts[i].NextProductPtr = (i < activeProducts.Count - 1)
+                    ? newProductOffset + productEntitySize
+                    : -1;
+
+                newProductOffset += productEntitySize;
+            }
+
+
+            int specEntitySize = _specSerializer.GetEntitySize();
+            int newSpecOffset = 0;
+            var newSpecCacheByProductOffset = new Dictionary<int, List<Spec>>();
+
+            for (int i = 0; i < activeProducts.Count; i++)
+            {
+                if (specsByProductIndex.TryGetValue(i, out var specs))
+                {
+
+                    activeProducts[i].SpecPtr = newSpecOffset;
+
+                    for (int j = 0; j < specs.Count; j++)
+                    {
+                        specs[j].FileOffset = newSpecOffset;
+
+                        specs[j].NextSpecPtr = (j < specs.Count - 1)
+                            ? newSpecOffset + specEntitySize
+                            : -1;
+
+                        newSpecOffset += specEntitySize;
+                    }
+
+
+                    newSpecCacheByProductOffset[activeProducts[i].FileOffset] = specs;
+                }
+                else
+                {
+                    activeProducts[i].SpecPtr = -1;
+                }
+            }
+
+            var tempProductStream = _productFsManager.CreateTempFile();
+            try
+            {
+                using (var writer = new BinaryWriter(tempProductStream, Encoding.UTF8, leaveOpen: false))
+                {
+                    _productHeader.FirstRecPtr = (activeProducts.Count > 0) ? productHeaderSize : -1;
+                    _productHeader.UnclaimedPtr = newProductOffset;
+
+                    writer.Write(Encoding.ASCII.GetBytes(_productHeader.Signature.PadRight(2).Substring(0, 2)));
+                    writer.Write(_productHeader.DataLength);
+                    writer.Write(_productHeader.FirstRecPtr);
+                    writer.Write(_productHeader.UnclaimedPtr);
+
+                    if (!string.IsNullOrEmpty(_productHeader.SpecFileName))
+                    {
+                        char[] specBuffer = new char[16];
+                        Array.Copy(_productHeader.SpecFileName.ToCharArray(), specBuffer, 
+                            Math.Min(_productHeader.SpecFileName.Length, 16));
+                        writer.Write(specBuffer);
+                    }
+
+                    foreach (var product in activeProducts)
+                    {
+                        tempProductStream.Seek(product.FileOffset, SeekOrigin.Begin);
+                        _productSerializer.WriteToFile(product, writer);
+                    }
+                }
+            }
+            catch
+            {
+                if (File.Exists(_productFsManager.GetTempFilePath()))
+                    File.Delete(_productFsManager.GetTempFilePath());
+                throw;
+            }
+
+            var tempSpecStream = _specFsManager.CreateTempFile();
+            try
+            {
+                using (var writer = new BinaryWriter(tempSpecStream, Encoding.UTF8, leaveOpen: false))
+                {
+                    foreach (var specs in newSpecCacheByProductOffset.Values)
+                    {
+                        foreach (var spec in specs)
+                        {
+                            tempSpecStream.Seek(spec.FileOffset, SeekOrigin.Begin);
+                            _specSerializer.WriteToFile(spec, writer);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                if (File.Exists(_specFsManager.GetTempFilePath()))
+                    File.Delete(_specFsManager.GetTempFilePath());
+                throw;
+            }
+
+            _productFsManager.ReplaceWithTempFile();
+            _specFsManager.ReplaceWithTempFile();
+
+            _productCache = activeProducts.ToDictionary(p => p.Name, p => p);
+            _specListCache = newSpecCacheByProductOffset;
+            _specHeaderCache.Clear();
         }
 
         public Product FindByName(string name)
@@ -218,10 +361,10 @@ namespace ConsoleApp2.Data
         public void UpdateProduct(Product product)
         {
             if (product == null)
-                throw new ArgumentNullException(nameof(product));
+                throw new ArgumentNullException(nameof(product), "Product is null.");
 
             if (product.FileOffset == -1)
-                throw new InvalidOperationException("Entity must have a valid FileOffset to update");
+                throw new InvalidOperationException("Product must have valid offset.");
 
             _productFsManager.Seek(product.FileOffset);
             using (var writer = new BinaryWriter(_productFsManager.GetStream(), Encoding.UTF8, leaveOpen: true))
@@ -234,10 +377,10 @@ namespace ConsoleApp2.Data
         public void UpdateSpec(Spec spec)
         {
             if (spec == null)
-                throw new ArgumentNullException(nameof(spec));
+                throw new ArgumentNullException(nameof(spec), "Spec is null.");
 
             if (spec.FileOffset == -1)
-                throw new InvalidOperationException("Entity must have a valid FileOffset to update");
+                throw new InvalidOperationException("Spec must have valid offset.");
 
             _specFsManager.Seek(spec.FileOffset);
             using (var writer = new BinaryWriter(_specFsManager.GetStream(), Encoding.UTF8, leaveOpen: true))

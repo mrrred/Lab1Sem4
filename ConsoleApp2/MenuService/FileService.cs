@@ -1,4 +1,4 @@
-﻿using ConsoleApp2.Data;
+using ConsoleApp2.Data;
 using ConsoleApp2.Data.Abstractions;
 using ConsoleApp2.Entities;
 using System;
@@ -11,6 +11,9 @@ namespace ConsoleApp2.MenuService
     {
         private Repository _productRepo;
         private bool _filesOpen;
+        public event EventHandler ProductsChanged;
+        public event EventHandler<string> ErrorOccurred;
+        public bool IsFilesOpen => _filesOpen;
 
         public FileService()
         {
@@ -25,24 +28,14 @@ namespace ConsoleApp2.MenuService
                 var args = arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 if (args.Length < 2)
-                {
-                    Console.WriteLine("Error: not enough arguments");
-                    Console.WriteLine("Usage: Create <filename> <max_length> [spec_filename]");
-                    return;
-                }
+                    throw new ArgumentException("Not enough arguments.");
 
                 string fileName = args[0];
                 if (!short.TryParse(args[1], out short dataLength))
-                {
-                    Console.WriteLine("Error: invalid data length");
-                    return;
-                }
+                    throw new ArgumentException("Invalid data length.");
 
                 if (dataLength <= 0 || dataLength > 32000)
-                {
-                    Console.WriteLine("Error: data length must be between 1 and 32000");
-                    return;
-                }
+                    throw new ArgumentException("Data length must be between 1 and 32000.");
 
                 string specFileName = args.Length > 2 ? args[2] :
                     Path.GetFileNameWithoutExtension(fileName) + ".prs";
@@ -57,7 +50,7 @@ namespace ConsoleApp2.MenuService
 
                 if (File.Exists(fileName))
                 {
-                    Console.Write("File exists. Overwrite? (y/n): ");
+                    Console.Write("File exists. Overwrite. (y/n): ");
                     if (Console.ReadLine()?.ToLower() != "y")
                         return;
                 }
@@ -71,10 +64,11 @@ namespace ConsoleApp2.MenuService
                 _productRepo.Create(fullPath, dataLength, specFileName);
 
                 _filesOpen = true;
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -83,19 +77,13 @@ namespace ConsoleApp2.MenuService
             try
             {
                 if (string.IsNullOrWhiteSpace(fileName))
-                {
-                    Console.WriteLine("Error: specify filename");
-                    return;
-                }
+                    throw new ArgumentException("Specify filename.");
 
                 if (!fileName.EndsWith(".prd"))
                     fileName += ".prd";
-                
+
                 if (!File.Exists(fileName))
-                {
-                    Console.WriteLine("Error: file not found: " + fileName);
-                    return;
-                }
+                    throw new FileNotFoundException($"File not found.");
 
                 var fullPath = fileName;
                 string directory = Path.GetDirectoryName(fullPath);
@@ -111,11 +99,7 @@ namespace ConsoleApp2.MenuService
                 string specFilePath = Path.Combine(directory, specFileName);
 
                 if (!File.Exists(specFilePath))
-                {
-                    Console.WriteLine("Error: specification file not found: " + specFilePath);
-                    productFs.Close();
-                    return;
-                }
+                    throw new FileNotFoundException($"Spec file not found.");
 
                 var specFs = new SpecFSManager(specFilePath);
                 var specSerializer = new SpecSerializer();
@@ -124,10 +108,11 @@ namespace ConsoleApp2.MenuService
                 _productRepo.Open(fullPath);
 
                 _filesOpen = true;
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -139,22 +124,15 @@ namespace ConsoleApp2.MenuService
                     return;
 
                 if (string.IsNullOrWhiteSpace(componentName))
-                {
-                    Console.WriteLine("Error: specify component name");
-                    return;
-                }
+                    throw new ArgumentException("Specify component name.");
 
                 var product = new Product(componentName, type);
                 _productRepo.Add(product);
-            }
-            catch (NullReferenceException ex)
-            {
-                Console.WriteLine("Error: NullReferenceException - " + ex.Message);
-                Console.WriteLine("StackTrace: " + ex.StackTrace);
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -172,36 +150,25 @@ namespace ConsoleApp2.MenuService
 
                 var component = _productRepo.Find(componentName);
                 if (component == null)
-                {
-                    Console.WriteLine("Error: component not found: " + componentName);
-                    return;
-                }
+                    throw new InvalidOperationException("Component not found.");
 
                 if (component.Type == ComponentType.Detail)
-                {
-                    Console.WriteLine("Error: detail cannot contain components");
-                    return;
-                }
+                    throw new InvalidOperationException("Detail cannot contain components.");
 
                 var specComponent = _productRepo.Find(specificationName);
                 if (specComponent == null)
-                {
-                    Console.WriteLine("Error: component not found: " + specificationName);
-                    return;
-                }
+                    throw new InvalidOperationException("Component not found.");
 
                 if (multiplicity <= 0)
-                {
-                    Console.WriteLine("Error: multiplicity must be greater than 0");
-                    return;
-                }
+                    throw new ArgumentException("Multiplicity must be greater than zero.");
 
                 var spec = new Spec(specComponent.FileOffset, multiplicity);
                 _productRepo.AddSpec(component, spec);
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -214,16 +181,14 @@ namespace ConsoleApp2.MenuService
 
                 var product = _productRepo.Find(componentName);
                 if (product == null)
-                {
-                    Console.WriteLine("Error: component not found: " + componentName);
-                    return;
-                }
+                    throw new InvalidOperationException("Component not found.");
 
                 _productRepo.Delete(componentName);
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -236,29 +201,21 @@ namespace ConsoleApp2.MenuService
 
                 var component = _productRepo.Find(componentName);
                 if (component == null)
-                {
-                    Console.WriteLine("Error: component not found: " + componentName);
-                    return;
-                }
+                    throw new InvalidOperationException("Component not found.");
 
                 if (component.Type == ComponentType.Detail)
-                {
-                    Console.WriteLine("Error: detail cannot contain components");
-                    return;
-                }
+                    throw new InvalidOperationException("Detail cannot contain components.");
 
                 var specComponent = _productRepo.Find(specificationName);
                 if (specComponent == null)
-                {
-                    Console.WriteLine("Error: component not found: " + specificationName);
-                    return;
-                }
+                    throw new InvalidOperationException("Component not found.");
 
                 _productRepo.DeleteSpec(component, specificationName);
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -271,16 +228,14 @@ namespace ConsoleApp2.MenuService
 
                 var product = _productRepo.FindIncludeDeleted(componentName);
                 if (product == null)
-                {
-                    Console.WriteLine("Error: component not found: " + componentName);
-                    return;
-                }
+                    throw new InvalidOperationException("Component not found.");
 
                 _productRepo.Restore(componentName);
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -292,10 +247,11 @@ namespace ConsoleApp2.MenuService
                     return;
 
                 _productRepo.RestoreAll();
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError($"Error: {ex.Message}");
             }
         }
 
@@ -307,10 +263,11 @@ namespace ConsoleApp2.MenuService
                     return;
 
                 _productRepo.Truncate();
+                OnProductsChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError($"Error: {ex.Message}");
             }
         }
 
@@ -323,22 +280,16 @@ namespace ConsoleApp2.MenuService
 
                 var component = _productRepo.Find(componentName);
                 if (component == null)
-                {
-                    Console.WriteLine("Error: component not found: " + componentName);
-                    return;
-                }
+                    throw new InvalidOperationException("Component not found.");
 
                 if (component.Type == ComponentType.Detail)
-                {
-                    Console.WriteLine("Error: detail cannot contain components");
-                    return;
-                }
+                    throw new InvalidOperationException("Detail cannot contain components.");
 
                 PrintComponentTree(component, "");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -357,7 +308,7 @@ namespace ConsoleApp2.MenuService
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                OnError(ex.Message);
             }
         }
 
@@ -369,6 +320,59 @@ namespace ConsoleApp2.MenuService
         public void Help(string fileName)
         {
             PrintHelp(fileName);
+        }
+
+        public IEnumerable<Product> GetAllProducts()
+        {
+            try
+            {
+                if (!_filesOpen)
+                    throw new InvalidOperationException("Files not open.");
+
+                return _productRepo.GetAll();
+            }
+            catch (Exception ex)
+            {
+                OnError(ex.Message);
+                return Enumerable.Empty<Product>();
+            }
+        }
+
+        public Product GetProduct(string productName)
+        {
+            try
+            {
+                if (!_filesOpen)
+                    throw new InvalidOperationException("Files not open.");
+
+                return _productRepo.Find(productName);
+            }
+            catch (Exception ex)
+            {
+                OnError(ex.Message);
+                return null;
+            }
+        }
+
+        public IEnumerable<Spec> GetProductSpecifications(string productName)
+        {
+            try
+            {
+                if (!_filesOpen)
+                    throw new InvalidOperationException("Files not open.");
+
+                var product = _productRepo.Find(productName);
+                if (product == null)
+                    throw new InvalidOperationException("Product not found.");
+
+                return _productRepo.GetSpecsForProduct(product.FileOffset)
+                    .Where(s => !s.IsDeleted);
+            }
+            catch (Exception ex)
+            {
+                OnError(ex.Message);
+                return Enumerable.Empty<Spec>();
+            }
         }
 
         private void PrintHelp(string fileName)
@@ -403,7 +407,7 @@ namespace ConsoleApp2.MenuService
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error: " + ex.Message);
+                    OnError(ex.Message);
                 }
             }
         }
@@ -412,7 +416,7 @@ namespace ConsoleApp2.MenuService
         {
             if (!_filesOpen)
             {
-                Console.WriteLine("Error: files not open");
+                OnError("Files not open.");
                 return false;
             }
             return true;
@@ -448,6 +452,16 @@ namespace ConsoleApp2.MenuService
                     }
                 }
             }
+        }
+
+        private void OnProductsChanged()
+        {
+            ProductsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnError(string message)
+        {
+            ErrorOccurred?.Invoke(this, message);
         }
     }
 }

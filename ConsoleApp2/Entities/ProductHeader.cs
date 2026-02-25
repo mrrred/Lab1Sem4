@@ -22,7 +22,7 @@ namespace ConsoleApp2.Entities
         {
             get { return _dataLength; }
             private set { 
-                if (value <= 0 || value > 32000) throw new ArgumentOutOfRangeException("value should be less than 32000 and more than 0");
+                if (value <= 0 || value > 32000) throw new ArgumentOutOfRangeException("Data length must be between 1 and 32000.");
                 _dataLength = value; 
             }
         }

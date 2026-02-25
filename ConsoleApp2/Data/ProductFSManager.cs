@@ -16,7 +16,7 @@ namespace ConsoleApp2.Data
         public void WriteHeader(ProductHeader header)
         {
             if (_fileStream == null)
-                throw new InvalidOperationException("File not opened");
+                throw new InvalidOperationException("File not opened.");
 
             using (var writer = new BinaryWriter(_fileStream, Encoding.UTF8, leaveOpen: true))
             {
@@ -40,7 +40,7 @@ namespace ConsoleApp2.Data
         public ProductHeader ReadHeader()
         {
             if (_fileStream == null)
-                throw new InvalidOperationException("File not opened");
+                throw new InvalidOperationException("File not opened.");
 
             using (var reader = new BinaryReader(_fileStream, Encoding.UTF8, leaveOpen: true))
             {
@@ -49,7 +49,7 @@ namespace ConsoleApp2.Data
                 string signature = Encoding.ASCII.GetString(sig);
 
                 if (signature != "PS")
-                    throw new InvalidOperationException("Invalid file signature");
+                    throw new InvalidOperationException("Invalid file signature.");
 
                 short dataLength = reader.ReadInt16();
                 int firstRecPtr = reader.ReadInt32();

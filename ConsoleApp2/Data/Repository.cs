@@ -20,10 +20,10 @@ namespace ConsoleApp2.Data
         public Repository(ProductFSManager productFsManager, SpecFSManager specFsManager, 
                          ProductSerializer productSerializer, SpecSerializer specSerializer)
         {
-            _productFsManager = productFsManager ?? throw new ArgumentNullException(nameof(productFsManager));
-            _specFsManager = specFsManager ?? throw new ArgumentNullException(nameof(specFsManager));
-            _productSerializer = productSerializer ?? throw new ArgumentNullException(nameof(productSerializer));
-            _specSerializer = specSerializer ?? throw new ArgumentNullException(nameof(specSerializer));
+            _productFsManager = productFsManager ?? throw new ArgumentNullException(nameof(productFsManager), "Product file manager is null.");
+            _specFsManager = specFsManager ?? throw new ArgumentNullException(nameof(specFsManager), "Spec file manager is null.");
+            _productSerializer = productSerializer ?? throw new ArgumentNullException(nameof(productSerializer), "Product serializer is null.");
+            _specSerializer = specSerializer ?? throw new ArgumentNullException(nameof(specSerializer), "Spec serializer is null.");
             _listManager = new LLManager(productFsManager, specFsManager, productSerializer, specSerializer);
         }
 
@@ -92,19 +92,19 @@ namespace ConsoleApp2.Data
         public void Add(Product product)
         {
             if (product == null)
-                throw new ArgumentNullException(nameof(product));
+                throw new ArgumentNullException(nameof(product), "Product is null.");
 
             if (_listManager == null)
                 throw new InvalidOperationException("Repository not initialized. Call Create or Open first.");
 
             if (_productFsManager == null || _productFsManager.GetStream() == null)
-                throw new InvalidOperationException("Product file not open");
+                throw new InvalidOperationException("Product file not open.");
 
             if (_specFsManager == null || _specFsManager.GetStream() == null)
-                throw new InvalidOperationException("Spec file not open");
+                throw new InvalidOperationException("Spec file not open.");
 
             if (_listManager.FindByName(product.Name) != null)
-                throw new InvalidOperationException("Component already exists: " + product.Name);
+                throw new InvalidOperationException("Component already exists.");
 
             int headerSize = ProductHeader.GetHeaderSize();
             int offset = (int)_productFsManager.GetStream().Length;
@@ -153,11 +153,11 @@ namespace ConsoleApp2.Data
         {
             var product = _listManager.FindByName(productName);
             if (product == null)
-                throw new InvalidOperationException("Component not found: " + productName);
+                throw new InvalidOperationException("Component not found.");
 
             var specs = _listManager.GetSpecsForProduct(product.FileOffset).Where(s => !s.IsDeleted).ToList();
             if (specs.Count > 0)
-                throw new InvalidOperationException("Component is referenced in specifications");
+                throw new InvalidOperationException("Component is referenced in specifications.");
 
             _listManager.Delete(product.FileOffset);
         }
@@ -245,11 +245,11 @@ namespace ConsoleApp2.Data
         {
             var specComponent = _listManager.FindByName(specName);
             if (specComponent == null)
-                throw new InvalidOperationException("Component not found: " + specName);
+                throw new InvalidOperationException("Component not found.");
 
             var specHeader = _listManager.GetSpecHeader(product.FileOffset);
             if (specHeader == null)
-                throw new InvalidOperationException("Specification not found");
+                throw new InvalidOperationException("Specification not found.");
 
             int currentOffset = specHeader.FirstRecPtr;
             Spec specToDelete = null;
@@ -272,7 +272,7 @@ namespace ConsoleApp2.Data
             }
 
             if (specToDelete == null)
-                throw new InvalidOperationException("Specification not found");
+                throw new InvalidOperationException("Specification not found.");
 
             specToDelete.MarkAsDeleted();
             _listManager.UpdateSpec(specToDelete);

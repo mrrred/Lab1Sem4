@@ -10,7 +10,7 @@ namespace ConsoleApp2.Data
         public void WriteToFile(Spec entity, BinaryWriter writer)
         {
             if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+                throw new ArgumentNullException(nameof(entity), "Spec is null.");
 
             writer.Write(entity.DelBit);
             writer.Write(entity.ComponentPtr);
@@ -21,7 +21,7 @@ namespace ConsoleApp2.Data
         public Spec ReadFromFile(BinaryReader reader)
         {
             if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
+                throw new ArgumentNullException(nameof(reader), "Reader is null.");
 
             byte delBit = reader.ReadByte();
             int componentPtr = reader.ReadInt32();

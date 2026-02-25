@@ -13,14 +13,14 @@ namespace ConsoleApp2.Data
         public ProductSerializer(short dataLength)
         {
             if (dataLength <= 0)
-                throw new ArgumentException("Data length must be positive", nameof(dataLength));
+                throw new ArgumentException("Data length must be greater than zero.", nameof(dataLength));
             _dataLength = dataLength;
         }
 
         public void WriteToFile(Product product, BinaryWriter writer)
         {
             if (product == null)
-                throw new ArgumentNullException(nameof(product));
+                throw new ArgumentNullException(nameof(product), "Product is null.");
             
             writer.Write(product.DelBit);
             writer.Write((byte)product.Type);
@@ -36,7 +36,7 @@ namespace ConsoleApp2.Data
         public Product ReadFromFile(BinaryReader reader)
         {
             if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
+                throw new ArgumentNullException(nameof(reader), "Reader is null.");
             
             byte delBit = reader.ReadByte();
             ComponentType type = (ComponentType)reader.ReadByte();
