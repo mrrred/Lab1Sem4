@@ -13,7 +13,7 @@ namespace ConsoleApp2
 
             IFileService fileService = new FileService();
 
-            IMenu menu = new ConsolPSMenu(new List<IMenuItemStringeble>
+            IMenu menu = new ConsolPSMenu(fileService, new List<IMenuItemStringeble>
             {
                 new CreateMenuItem(fileService),
                 new OpenMenuItem(fileService),

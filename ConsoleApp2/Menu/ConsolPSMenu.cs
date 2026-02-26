@@ -8,14 +8,18 @@ namespace ConsoleApp2.Menu
 {
     internal class ConsolPSMenu : IMenu
     {
-        private List<IMenuItemStringeble> MenuItems { get; set; }
+        protected IFileService _fileService;
 
-        public ConsolPSMenu()
+        private List<IMenuItemStringeble> MenuItems { get; set; } = [];
+
+        public ConsolPSMenu(IFileService fileService)
         {
-            MenuItems = [];
+            _fileService = fileService;
+
+            _fileService.ErrorOccurred += PrintErrorMessage;
         }
 
-        public ConsolPSMenu(IEnumerable<IMenuItemStringeble> menuItems)
+        public ConsolPSMenu(IFileService fileService, IEnumerable<IMenuItemStringeble> menuItems) : this(fileService)
         {
             MenuItems = menuItems.ToList();
         }
@@ -64,6 +68,11 @@ namespace ConsoleApp2.Menu
         {
             MenuItems.Add(item);
         }
+
+        protected void PrintErrorMessage(object? sender, string message)
+        {
+            Console.WriteLine(message);
+        }
     }
 
     abstract class PSMenuItem
@@ -84,7 +93,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
             _fileService.Create(input);
             return true;
         }
@@ -98,7 +106,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
             _fileService.Open(input);
             return true;
         }
@@ -112,8 +119,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
-
             string[] inputSplit = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             if (inputSplit.Length == 0)
@@ -165,8 +170,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
-
             string[] inputSplit = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             if (inputSplit.Length == 1)
@@ -194,8 +197,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
-
             if (string.IsNullOrWhiteSpace(input) || input.Trim() == "*")
             {
                 _fileService.Restore();
@@ -217,7 +218,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
             _fileService.Truncate();
             return true;
         }
@@ -231,8 +231,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
-
             if (string.IsNullOrWhiteSpace(input) || input.Trim() == "*")
             {
                 _fileService.Print();
@@ -254,8 +252,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
-
             if (string.IsNullOrWhiteSpace(input))
             {
                 _fileService.Help();
@@ -277,7 +273,6 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            Console.WriteLine(Title);
             return false;
         }
     }
