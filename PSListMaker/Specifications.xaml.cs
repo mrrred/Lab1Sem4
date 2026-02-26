@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PSListMaker.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -12,14 +13,15 @@ using System.Windows.Shapes;
 
 namespace PSListMaker
 {
-    /// <summary>
-    /// Interaction logic for Specifications.xaml
-    /// </summary>
     public partial class Specifications : Window
     {
-        public Specifications()
+        private SpecificationsViewModel _specificationsViewModel;
+
+        public Specifications(SpecificationsViewModel specificationsViewModel)
         {
             InitializeComponent();
+
+            _specificationsViewModel = specificationsViewModel;
         }
     }
 }

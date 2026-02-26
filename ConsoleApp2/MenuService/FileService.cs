@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace ConsoleApp2.MenuService
 {
-    internal class FileService : IFileService
+    public class FileService : IFileService
     {
         private Repository _productRepo;
         private bool _filesOpen;

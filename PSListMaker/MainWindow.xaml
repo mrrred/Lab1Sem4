@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PSListMaker"
+        xmlns:localvm="clr-namespace:PSListMaker.ViewModels"
+        d:DataContext="{d:DesignInstance localvm:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="Многосвязные списки" Height="55" Width="280">
     <Grid>
