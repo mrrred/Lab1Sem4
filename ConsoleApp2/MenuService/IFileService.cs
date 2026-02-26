@@ -8,6 +8,7 @@ namespace ConsoleApp2.MenuService
     {
         void Create(string fileName);
         void Open(string fileName);
+        void Close();
         void Input(string componentName, ComponentType type);
         void Input(string componentName, string specificationName);
         void Input(string componentName, string specificationName, ushort multiplicity);

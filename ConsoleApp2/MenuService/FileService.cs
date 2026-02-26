@@ -25,6 +25,8 @@ namespace ConsoleApp2.MenuService
         {
             try
             {
+                Close();
+
                 var args = arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 if (args.Length < 2)
@@ -76,8 +78,7 @@ namespace ConsoleApp2.MenuService
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(fileName))
-                    throw new ArgumentException("Specify filename.");
+                Close();
 
                 if (!fileName.EndsWith(".prd"))
                     fileName += ".prd";
@@ -109,6 +110,23 @@ namespace ConsoleApp2.MenuService
 
                 _filesOpen = true;
                 OnProductsChanged();
+            }
+            catch (Exception ex)
+            {
+                OnError(ex.Message);
+            }
+        }
+
+        public void Close()
+        {
+            try
+            {
+                if (_filesOpen && _productRepo != null)
+                {
+                    _productRepo.Close();
+                    _filesOpen = false;
+                    _productRepo = null;
+                }
             }
             catch (Exception ex)
             {
