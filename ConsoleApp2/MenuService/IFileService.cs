@@ -1,4 +1,4 @@
-using ConsoleApp2.Entities;
+﻿using ConsoleApp2.Entities;
 using System;
 using System.Collections.Generic;
 
@@ -14,6 +14,8 @@ namespace ConsoleApp2.MenuService
         void Input(string componentName, string specificationName, ushort multiplicity);
         void Delete(string componentName);
         void Delete(string componentName, string specificationName);
+        void Edit(string productName, string newProductName);
+        void EditSpec(string productName, string specName, ushort newMultiplicity);
         void Restore(string componentName);
         void Restore();
         void Truncate();

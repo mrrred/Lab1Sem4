@@ -12,54 +12,88 @@ namespace ConsoleApp2.Entities
         private int _nextSpecPtr;
         private int _fileOffset;
         private string _name;
+
         public byte DelBit
         {
             get { return _delbit; }
             set { _delbit = value; }
         }
+
         public int ComponentPtr
         {
             get { return _componentPtr; }
-            set { _componentPtr = value; }
+            private set { _componentPtr = value; }
         } 
+
         public ushort Multiplicity
         {
             get { return _multiplicity; }
-            set { _multiplicity = value; }
+            private set { _multiplicity = value; }
         }
+
         public int NextSpecPtr
         {
             get { return _nextSpecPtr; }
             set { _nextSpecPtr = value; }
         }
+
         public int FileOffset
         {
             get { return _fileOffset; }
             set { _fileOffset = value; }
         }
+
         public string Name
         {
             get { return _name; }
-            set { _name = value; }
+            private set { _name = value; }
         }
+
         public bool IsDeleted => DelBit == 1;
 
         public Spec(int componentPtr, ushort multiplicity = 1)
         {
-            if (multiplicity <= 0)
-                throw new ArgumentException("Multiplicity must be greater than zero.");
-
-            if (multiplicity > 32767)
-                throw new ArgumentException("Multiplicity must not exceed 32767.");
-
-            DelBit = 0;
-            ComponentPtr = componentPtr;
-            Multiplicity = multiplicity;
-            NextSpecPtr = -1;
-            FileOffset = -1;
+            _delbit = 0;
+            SetComponentPtr(componentPtr);
+            SetMultiplicity(multiplicity);
+            _nextSpecPtr = -1;
+            _fileOffset = -1;
+            _name = null;
         }
 
-        public void MarkAsDeleted() => DelBit = 1;
-        public void Restore() => DelBit = 0;
+        public void SetComponentPtr(int componentPtr)
+        {
+            if (componentPtr < 0)
+                throw new ArgumentException("Component pointer must be non-negative.");
+            ComponentPtr = componentPtr;
+        }
+
+        public void SetMultiplicity(ushort multiplicity)
+        {
+            if (multiplicity <= 0)
+                throw new ArgumentException("Multiplicity must be greater than zero.");
+            Multiplicity = multiplicity;
+        }
+
+        public void SetNextSpecPtr(int nextSpecPtr)
+        {
+            NextSpecPtr = nextSpecPtr;
+        }
+
+        public void SetFileOffset(int fileOffset)
+        {
+            if (fileOffset < -1)
+                throw new ArgumentException("File offset must be -1 or greater.");
+            FileOffset = fileOffset;
+        }
+
+        public void SetName(string name)
+        {
+            Name = name;
+        }
+
+        public void MarkAsDeleted() => _delbit = 1;
+        public void Restore() => _delbit = 0;
     }
 }
+

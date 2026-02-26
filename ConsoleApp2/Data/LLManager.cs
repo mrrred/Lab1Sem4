@@ -513,5 +513,35 @@ namespace ConsoleApp2.Data
                 return _specListCache[productOffset];
             return Enumerable.Empty<Spec>();
         }
+
+        public void EditProduct(string oldName, string newName)
+        {
+            if (!_productCache.TryGetValue(oldName, out var product))
+                throw new InvalidOperationException("Component not found.");
+
+            if (oldName != newName && _productCache.ContainsKey(newName))
+                throw new InvalidOperationException("Component with this name already exists.");
+
+            product.SetComponentName(newName);
+            UpdateProduct(product);
+
+            _productCache.Remove(oldName);
+            _productCache[newName] = product;
+        }
+
+        public void EditSpec(int productOffset, int specComponentPtr, ushort newMultiplicity)
+        {
+            if (!_specListCache.ContainsKey(productOffset))
+                throw new InvalidOperationException("Product specifications not found.");
+
+            var spec = _specListCache[productOffset]
+                .FirstOrDefault(s => s.ComponentPtr == specComponentPtr && !s.IsDeleted);
+
+            if (spec == null)
+                throw new InvalidOperationException("Specification not found.");
+
+            spec.SetMultiplicity(newMultiplicity);
+            UpdateSpec(spec);
+        }
     }
 }

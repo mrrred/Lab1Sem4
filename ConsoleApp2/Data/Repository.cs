@@ -322,5 +322,27 @@ namespace ConsoleApp2.Data
         {
             return _listManager.GetSpecsForProduct(productOffset);
         }
+
+        public void EditProduct(string oldName, string newName)
+        {
+            var product = _listManager.FindByName(oldName);
+            if (product == null)
+                throw new InvalidOperationException("Component not found.");
+
+            var existingProduct = _listManager.FindByName(newName);
+            if (existingProduct != null && existingProduct.FileOffset != product.FileOffset)
+                throw new InvalidOperationException("Component with this name already exists.");
+
+            _listManager.EditProduct(oldName, newName);
+        }
+
+        public void EditSpec(Product product, string specName, ushort newMultiplicity)
+        {
+            var specComponent = _listManager.FindByName(specName);
+            if (specComponent == null)
+                throw new InvalidOperationException("Specification component not found.");
+
+            _listManager.EditSpec(product.FileOffset, specComponent.FileOffset, newMultiplicity);
+        }
     }
 }

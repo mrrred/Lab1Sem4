@@ -16,51 +16,77 @@ namespace ConsoleApp2.Entities
         public string Signature
         {
             get { return _signature; }
-            set { _signature = value; }
+            private set { _signature = value; }
         }
+
         public short DataLength
         {
             get { return _dataLength; }
             private set { 
-                if (value <= 0 || value > 32000) throw new ArgumentOutOfRangeException("Data length must be between 1 and 32000.");
+                if (value <= 0 || value > 32000) 
+                    throw new ArgumentOutOfRangeException(nameof(value), "Data length must be between 1 and 32000.");
                 _dataLength = value; 
             }
         }
+
         public int FirstRecPtr
         {
             get { return _firstRecPtr; }
             set { _firstRecPtr = value; }
         }
+
         public int UnclaimedPtr
         {
             get { return _unclaimedPtr; }
-            set { _unclaimedPtr = value;}
+            set { _unclaimedPtr = value; }
         }
+
         public string SpecFileName
         {
-            get
-            {
-                return _specFileName;
-            }
-
-            set { _specFileName = value; }
+            get { return _specFileName; }
+            private set { _specFileName = value; }
         }
 
         public ProductHeader(short dataLength, string specFileName)
         {
+            SetDataLength(dataLength);
             Signature = FileStructure.DEFAULT_SIGNATURE;
-            DataLength = dataLength;
-            FirstRecPtr = -1;
-            UnclaimedPtr = -1;
-            SpecFileName = specFileName;
+            _firstRecPtr = -1;
+            _unclaimedPtr = -1;
+            SetSpecFileName(specFileName);
         }
 
         public ProductHeader(string signature, short dataLength, int firstRecPtr, int unclaimedPtr, string specFileName)
         {
+            if (string.IsNullOrEmpty(signature))
+                throw new ArgumentException("Signature cannot be null or empty.");
+
             Signature = signature;
+            SetDataLength(dataLength);
+            _firstRecPtr = firstRecPtr;
+            _unclaimedPtr = unclaimedPtr;
+            SetSpecFileName(specFileName);
+        }
+
+        public void SetDataLength(short dataLength)
+        {
             DataLength = dataLength;
+        }
+
+        public void SetFirstRecPtr(int firstRecPtr)
+        {
             FirstRecPtr = firstRecPtr;
+        }
+
+        public void SetUnclaimedPtr(int unclaimedPtr)
+        {
             UnclaimedPtr = unclaimedPtr;
+        }
+
+        public void SetSpecFileName(string specFileName)
+        {
+            if (string.IsNullOrWhiteSpace(specFileName))
+                throw new ArgumentException("Specification file name cannot be null or empty.");
             SpecFileName = specFileName;
         }
 

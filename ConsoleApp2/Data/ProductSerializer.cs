@@ -55,6 +55,6 @@ namespace ConsoleApp2.Data
             return product;
         }
 
-        public int GetEntitySize() => 1 + 1 + 4 + 4 + _dataLength;
+        public int GetEntitySize() => FileStructure.DELBIT_SIZE + FileStructure.TYPE_SIZE + FileStructure.POINTER_SIZE + FileStructure.POINTER_SIZE + _dataLength;
     }
 }

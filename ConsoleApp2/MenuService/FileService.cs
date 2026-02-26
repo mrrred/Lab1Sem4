@@ -1,4 +1,4 @@
-using ConsoleApp2.Data;
+﻿using ConsoleApp2.Data;
 using ConsoleApp2.Data.Abstractions;
 using ConsoleApp2.Entities;
 using System;
@@ -232,6 +232,63 @@ namespace ConsoleApp2.MenuService
                     throw new InvalidOperationException("Component not found.");
 
                 _productRepo.DeleteSpec(component, specificationName);
+                OnProductsChanged();
+            }
+            catch (Exception ex)
+            {
+                OnError(ex.Message);
+            }
+        }
+
+        public void Edit(string productName, string newProductName)
+        {
+            try
+            {
+                if (!ValidateFilesOpen())
+                    return;
+
+                if (string.IsNullOrWhiteSpace(newProductName))
+                    throw new ArgumentException("New product name cannot be null or empty.");
+
+                var product = _productRepo.Find(productName);
+                if (product == null)
+                    throw new InvalidOperationException("Component not found.");
+
+                var existingProduct = _productRepo.Find(newProductName);
+                if (existingProduct != null && existingProduct.FileOffset != product.FileOffset)
+                    throw new InvalidOperationException("Component with this name already exists.");
+
+                _productRepo.EditProduct(productName, newProductName);
+                OnProductsChanged();
+            }
+            catch (Exception ex)
+            {
+                OnError(ex.Message);
+            }
+        }
+
+        public void EditSpec(string productName, string specName, ushort newMultiplicity)
+        {
+            try
+            {
+                if (!ValidateFilesOpen())
+                    return;
+
+                var component = _productRepo.Find(productName);
+                if (component == null)
+                    throw new InvalidOperationException("Component not found.");
+
+                var specComponent = _productRepo.Find(specName);
+                if (specComponent == null)
+                    throw new InvalidOperationException("Specification component not found.");
+
+                if (newMultiplicity <= 0)
+                    throw new ArgumentException("Multiplicity must be greater than zero.");
+
+                if (newMultiplicity > 65535)
+                    throw new ArgumentException("Multiplicity must not exceed 65535.");
+
+                _productRepo.EditSpec(component, specName, newMultiplicity);
                 OnProductsChanged();
             }
             catch (Exception ex)

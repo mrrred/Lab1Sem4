@@ -9,11 +9,13 @@ namespace ConsoleApp2.Entities
     {
         private int _firstRecPtr;
         private int _unclaimedPtr;
+
         public int FirstRecPtr
         {
             get { return _firstRecPtr; }
             set { _firstRecPtr = value; }
         }
+
         public int UnclaimedPtr
         {
             get { return _unclaimedPtr; }
@@ -22,7 +24,19 @@ namespace ConsoleApp2.Entities
 
         public SpecHeader(int firstRecPtr, int unclaimedPtr)
         {
+            SetFirstRecPtr(firstRecPtr);
+            SetUnclaimedPtr(unclaimedPtr);
+        }
+
+        public void SetFirstRecPtr(int firstRecPtr)
+        {
             FirstRecPtr = firstRecPtr;
+        }
+
+        public void SetUnclaimedPtr(int unclaimedPtr)
+        {
+            if (unclaimedPtr < 0)
+                throw new ArgumentException("Unclaimed pointer must be non-negative.");
             UnclaimedPtr = unclaimedPtr;
         }
 

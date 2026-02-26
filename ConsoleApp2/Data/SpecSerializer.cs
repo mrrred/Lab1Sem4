@@ -37,6 +37,6 @@ namespace ConsoleApp2.Data
             return spec;
         }
 
-        public int GetEntitySize() => 1 + 4 + 2 + 4;
+        public int GetEntitySize() => FileStructure.DELBIT_SIZE + FileStructure.POINTER_SIZE + FileStructure.MULTIPLICITY_SIZE + FileStructure.POINTER_SIZE;
     }
 }
