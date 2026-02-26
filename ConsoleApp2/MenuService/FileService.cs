@@ -180,6 +180,9 @@ namespace ConsoleApp2.MenuService
                 if (multiplicity <= 0)
                     throw new ArgumentException("Multiplicity must be greater than zero.");
 
+                if (multiplicity > 32767)
+                    throw new ArgumentException("Multiplicity must not exceed 32767.");
+
                 var spec = new Spec(specComponent.FileOffset, multiplicity);
                 _productRepo.AddSpec(component, spec);
                 OnProductsChanged();

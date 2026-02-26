@@ -154,7 +154,7 @@ namespace ConsoleApp2.Menu
                 }
                 else
                 {
-                    _fileService.Input(component, specification);
+                    Console.WriteLine("Error: invalid multiplicity.");
                 }
             }
 

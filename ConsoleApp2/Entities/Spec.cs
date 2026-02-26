@@ -46,6 +46,12 @@ namespace ConsoleApp2.Entities
 
         public Spec(int componentPtr, ushort multiplicity = 1)
         {
+            if (multiplicity <= 0)
+                throw new ArgumentException("Multiplicity must be greater than zero.");
+
+            if (multiplicity > 32767)
+                throw new ArgumentException("Multiplicity must not exceed 32767.");
+
             DelBit = 0;
             ComponentPtr = componentPtr;
             Multiplicity = multiplicity;
