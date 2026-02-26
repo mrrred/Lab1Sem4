@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,16 +11,20 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
+using ConsoleApp2.MenuService;
+using PSListMaker.ViewModels;
+
 namespace PSListMaker
 {
-    /// <summary>
-    /// Interaction logic for ComponenstList.xaml
-    /// </summary>
-    public partial class ComponenstList : Window
+    public partial class ComponentsList : Window
     {
-        public ComponenstList()
+        private ComponentsListViewModel _componentsListViewModel;
+
+        public ComponentsList(ComponentsListViewModel componentsListViewModel)
         {
             InitializeComponent();
+
+            _componentsListViewModel = componentsListViewModel;
         }
     }
 }
