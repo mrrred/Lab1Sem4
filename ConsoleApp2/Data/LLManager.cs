@@ -158,14 +158,41 @@ namespace ConsoleApp2.Data
                     }
                 }
             }
+
+            foreach (var product in _productCache.Values)
+            {
+                if (_specListCache.ContainsKey(product.FileOffset))
+                {
+                    var specs = _specListCache[product.FileOffset].Where(s => !s.IsDeleted).ToList();
+                    if (specs.Count > 0)
+                    {
+                        _specHeaderCache[product.FileOffset].FirstRecPtr = specs[0].FileOffset;
+                    }
+                }
+            }
         }
 
         public void Truncate()
         {
-
             var activeProducts = _productCache.Values
                 .Where(p => !p.IsDeleted)
                 .OrderBy(p => p.FileOffset)
+                .ToList();
+
+            var referencedComponents = new HashSet<int>();
+            foreach (var specList in _specListCache.Values)
+            {
+                foreach (var spec in specList)
+                {
+                    if (!spec.IsDeleted)
+                    {
+                        referencedComponents.Add(spec.ComponentPtr);
+                    }
+                }
+            }
+
+            activeProducts = activeProducts
+                .Where(p => referencedComponents.Contains(p.FileOffset) || !_specListCache.Values.Any(sl => sl.Any(s => !s.IsDeleted)))
                 .ToList();
 
             if (activeProducts.Count == 0)
@@ -311,7 +338,18 @@ namespace ConsoleApp2.Data
 
             _productCache = activeProducts.ToDictionary(p => p.Name, p => p);
             _specListCache = newSpecCacheByProductOffset;
+
             _specHeaderCache.Clear();
+            foreach (var product in activeProducts)
+            {
+                if (_specListCache.ContainsKey(product.FileOffset))
+                {
+                    var specs = _specListCache[product.FileOffset];
+                    int firstSpecPtr = specs.Count > 0 ? specs[0].FileOffset : -1;
+                    int unclaimedPtr = specs.Count > 0 ? specs[specs.Count - 1].FileOffset + SpecHeader.GetHeaderSize() : SpecHeader.GetHeaderSize();
+                    _specHeaderCache[product.FileOffset] = new SpecHeader(firstSpecPtr, unclaimedPtr);
+                }
+            }
         }
 
         public Product FindByName(string name)
