@@ -157,7 +157,20 @@ namespace ConsoleApp2.Data
 
             var specs = _listManager.GetSpecsForProduct(product.FileOffset).Where(s => !s.IsDeleted).ToList();
             if (specs.Count > 0)
-                throw new InvalidOperationException("Component is referenced in specifications.");
+                throw new InvalidOperationException("Component contains specifications. Delete specifications first.");
+
+            var allProducts = _listManager.GetAllProducts().ToList();
+            foreach (var parentProduct in allProducts)
+            {
+                var parentSpecs = _listManager.GetSpecsForProduct(parentProduct.FileOffset).Where(s => !s.IsDeleted).ToList();
+                foreach (var spec in parentSpecs)
+                {
+                    if (spec.ComponentPtr == product.FileOffset)
+                    {
+                        throw new InvalidOperationException($"Component is referenced by {parentProduct.Name}.");
+                    }
+                }
+            }
 
             _listManager.Delete(product.FileOffset);
         }

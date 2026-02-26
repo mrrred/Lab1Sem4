@@ -269,7 +269,7 @@ namespace ConsoleApp2.MenuService
             }
             catch (Exception ex)
             {
-                OnError($"Error: {ex.Message}");
+                OnError(ex.Message);
             }
         }
 
@@ -285,7 +285,7 @@ namespace ConsoleApp2.MenuService
             }
             catch (Exception ex)
             {
-                OnError($"Error: {ex.Message}");
+                OnError(ex.Message);
             }
         }
 
