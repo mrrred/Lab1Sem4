@@ -15,9 +15,6 @@ using System.Windows.Shapes;
 
 namespace PSListMaker.Views
 {
-    /// <summary>
-    /// Логика взаимодействия для AddComponentWindow.xaml
-    /// </summary>
     public partial class AddComponentWindow : Window
     {
         private AddComponentWindowViewModel _viewModel;
@@ -42,6 +39,8 @@ namespace PSListMaker.Views
             };
 
             _viewModel.Add(name, type);
+
+            Close();
         }
 
 

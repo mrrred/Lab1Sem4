@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.IO;
 
 namespace PSListMaker.ViewModels
 {
@@ -21,7 +22,11 @@ namespace PSListMaker.ViewModels
 
         public void CreateFile(string path)
         {
-            //_fileService.Create(path);
+            string Directory = Path.GetDirectoryName(path);
+            string fileNames = Path.GetFileNameWithoutExtension(path);
+
+            // Пока так
+            _fileService.Create(Directory, fileNames, fileNames, 20);
         }
 
         public void OpenFile(string path)
