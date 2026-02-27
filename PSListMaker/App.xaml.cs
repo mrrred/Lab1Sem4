@@ -1,5 +1,6 @@
 ﻿using ConsoleApp2.MenuService;
 using PSListMaker.ViewModels;
+using PSListMaker.WindowServices;
 using System.Configuration;
 using System.Data;
 using System.Windows;
@@ -14,14 +15,10 @@ namespace PSListMaker
         {
             IFileService fileService = new FileService();
 
-            ComponentsListViewModel componentsListViewModel = new ComponentsListViewModel(fileService);
-            ComponentsList componenstList = new ComponentsList(componentsListViewModel);
-
-            SpecificationsViewModel specificationsViewModel = new SpecificationsViewModel(fileService);
-            Specifications specifications = new Specifications(specificationsViewModel);
+            IMainWindowService windowService = new MainWindowService(fileService);
 
             MainWindowViewModel mainWindowViewModel = new MainWindowViewModel(fileService);
-            MainWindow mainWindow = new MainWindow(mainWindowViewModel, componenstList, specifications);
+            MainWindow mainWindow = new MainWindow(mainWindowViewModel, windowService);
 
 
 

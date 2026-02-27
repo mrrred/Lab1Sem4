@@ -19,6 +19,11 @@ namespace PSListMaker.ViewModels
             _fileService = fileService;
         }
 
+        public void CreateFile(string path)
+        {
+            //_fileService.Create(path);
+        }
+
         public void OpenFile(string path)
         {
             _fileService.Open(path);

@@ -25,6 +25,8 @@ namespace PSListMaker
             InitializeComponent();
 
             _componentsListViewModel = componentsListViewModel;
+
+            CompNameTypeList.ItemsSource = _componentsListViewModel.GetComponents();
         }
     }
 }

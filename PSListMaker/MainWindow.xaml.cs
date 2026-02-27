@@ -11,26 +11,45 @@ using System.Windows.Shapes;
 using PSListMaker.ViewModels;
 
 using Microsoft.Win32;
+using PSListMaker.WindowServices;
 
 namespace PSListMaker
 {
     public partial class MainWindow : Window
     {
         private MainWindowViewModel _mainWindowViewModel;
-        private ComponentsList _componentsList;
-        private Specifications _specifications;
+        private IMainWindowService _windowService;
 
         public MainWindow(MainWindowViewModel mainWindowViewModel, 
-            ComponentsList componentsList, 
-            Specifications specifications)
+            IMainWindowService windowService)
         {
             InitializeComponent();
 
             _mainWindowViewModel = mainWindowViewModel;
-            _componentsList = componentsList;
-            _specifications = specifications;
+            _windowService = windowService;
 
             DataContext = _mainWindowViewModel;
+        }
+
+        private void DoActiveProgram()
+        {
+            Components.IsEnabled = true;
+            Specs.IsEnabled = true;
+        }
+
+        private void Create_Button_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Файлы изделий (*.prd)|*.prd";
+            saveFileDialog.DefaultExt = "prd";
+            saveFileDialog.Title = "Создать новый файл";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                _mainWindowViewModel.CreateFile(saveFileDialog.FileName);
+            }
+
+            DoActiveProgram();
         }
 
         private void Open_Button_Click(object sender, RoutedEventArgs e)
@@ -45,16 +64,18 @@ namespace PSListMaker
             {
                 _mainWindowViewModel.OpenFile(openFileDialog.FileName);
             }
+
+            DoActiveProgram();
         }
 
         private void Components_Button_Click(object sender, RoutedEventArgs e)
         {
-            _componentsList.ShowDialog();
+            _windowService.GetComponentsListWindow().ShowDialog();
         }
 
         private void Specs_Button_Click(object sender, RoutedEventArgs e)
         {
-            _specifications.ShowDialog();
+            _windowService.GetSpecificationsWindow().ShowDialog();
         }
     }
 }

@@ -25,9 +25,14 @@
 
         <Separator Height="3" Padding="0 5 0 5" Grid.Row="1"/>
 
-        <ListBox Grid.Row="2">
-            
-        </ListBox>
+        <ListView x:Name="CompNameTypeList" Grid.Row="2">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="70" Header="Название" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Width="70" Header="Тип" DisplayMemberBinding="{Binding Type}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
 
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>

@@ -15,9 +15,12 @@
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0">
-            <MenuItem Header="Открыть" Click="Open_Button_Click"></MenuItem>
-            <MenuItem Header="Компоненты" Click="Components_Button_Click"></MenuItem>
-            <MenuItem Header="Спецификация" Click="Specs_Button_Click"></MenuItem>
+            <MenuItem Header="Файл">
+                <MenuItem Header="Создать" Click="Create_Button_Click"></MenuItem>
+                <MenuItem Header="Открыть" Click="Open_Button_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem x:Name="Components" Header="Компоненты" Click="Components_Button_Click" IsEnabled="False"></MenuItem>
+            <MenuItem x:Name="Specs" Header="Спецификация" Click="Specs_Button_Click" IsEnabled="False"></MenuItem>
 
         </Menu>
         

@@ -93,7 +93,7 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            _fileService.Create(input);
+            //_fileService.Create(input);
             return true;
         }
     }
