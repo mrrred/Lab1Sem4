@@ -21,49 +21,39 @@ namespace ConsoleApp2.MenuService
             _filesOpen = false;
         }
 
-        public void Create(string arguments)
+        public void Create(string directoryPath, string productFileName, string specFileName, short dataLength)
         {
             try
             {
-                Close();
-
-                var args = arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                if (args.Length < 2)
-                    throw new ArgumentException("Not enough arguments.");
-
-                string fileName = args[0];
-                if (!short.TryParse(args[1], out short dataLength))
-                    throw new ArgumentException("Invalid data length.");
-
+                if (string.IsNullOrWhiteSpace(directoryPath))
+                    throw new ArgumentException("Directory path cannot be null or empty.");
+                if (string.IsNullOrWhiteSpace(productFileName))
+                    throw new ArgumentException("Product file name cannot be null or empty.");
+                if (string.IsNullOrWhiteSpace(specFileName))
+                    throw new ArgumentException("Spec file name cannot be null or empty.");
                 if (dataLength <= 0 || dataLength > 32000)
                     throw new ArgumentException("Data length must be between 1 and 32000.");
 
-                string specFileName = args.Length > 2 ? args[2] :
-                    Path.GetFileNameWithoutExtension(fileName) + ".prs";
+                Close();
+                string fullProductPath = Path.Combine(directoryPath, productFileName + ".prd");
+                string fullSpecPath = Path.Combine(directoryPath, specFileName + ".prs");
 
-                if (!fileName.EndsWith(".prd"))
-                    fileName += ".prd";
-                if (!specFileName.EndsWith(".prs"))
-                    specFileName += ".prs";
-
-                string fullPath = fileName;
-                string specFilePath = specFileName;
-
-                if (File.Exists(fileName))
+                if (File.Exists(fullProductPath) || File.Exists(fullSpecPath))
                 {
                     Console.Write("File exists. Overwrite. (y/n): ");
                     if (Console.ReadLine()?.ToLower() != "y")
                         return;
                 }
 
-                var productFs = new ProductFSManager(fullPath);
+                Directory.CreateDirectory(directoryPath);
+
+                var productFs = new ProductFSManager(fullProductPath);
                 var productSerializer = new ProductSerializer(dataLength);
-                var specFs = new SpecFSManager(specFilePath);
+                var specFs = new SpecFSManager(fullSpecPath);
                 var specSerializer = new SpecSerializer();
 
                 _productRepo = new Repository(productFs, specFs, productSerializer, specSerializer);
-                _productRepo.Create(fullPath, dataLength, specFileName);
+                _productRepo.Create(fullProductPath, dataLength, specFileName + ".prs");
 
                 _filesOpen = true;
                 OnProductsChanged();
@@ -74,24 +64,24 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Open(string fileName)
+        public void Open(string fullProductPath)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(fullProductPath))
+                    throw new ArgumentException("File path cannot be null or empty.");
+                if (!fullProductPath.EndsWith(".prd", StringComparison.OrdinalIgnoreCase))
+                    throw new ArgumentException("Product file must have .prd extension.");
+                if (!File.Exists(fullProductPath))
+                    throw new FileNotFoundException($"Product file not found: {fullProductPath}");
+
                 Close();
 
-                if (!fileName.EndsWith(".prd"))
-                    fileName += ".prd";
-
-                if (!File.Exists(fileName))
-                    throw new FileNotFoundException($"File not found.");
-
-                var fullPath = fileName;
-                string directory = Path.GetDirectoryName(fullPath);
+                string directory = Path.GetDirectoryName(fullProductPath);
                 if (string.IsNullOrEmpty(directory))
                     directory = ".";
 
-                var productFs = new ProductFSManager(fullPath);
+                var productFs = new ProductFSManager(fullProductPath);
                 productFs.OpenFile();
                 var productHeader = productFs.ReadHeader();
 
@@ -100,13 +90,13 @@ namespace ConsoleApp2.MenuService
                 string specFilePath = Path.Combine(directory, specFileName);
 
                 if (!File.Exists(specFilePath))
-                    throw new FileNotFoundException($"Spec file not found.");
+                    throw new FileNotFoundException($"Spec file not found: {specFilePath}");
 
                 var specFs = new SpecFSManager(specFilePath);
                 var specSerializer = new SpecSerializer();
 
                 _productRepo = new Repository(productFs, specFs, productSerializer, specSerializer);
-                _productRepo.Open(fullPath);
+                _productRepo.Open(fullProductPath);
 
                 _filesOpen = true;
                 OnProductsChanged();

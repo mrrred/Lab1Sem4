@@ -6,8 +6,8 @@ namespace ConsoleApp2.MenuService
 {
     public interface IFileService
     {
-        void Create(string fileName);
-        void Open(string fileName);
+        void Create(string directoryPath, string productFileName, string specFileName, short dataLength);
+        void Open(string fullProductPath);
         void Close();
         void Input(string componentName, ComponentType type);
         void Input(string componentName, string specificationName);
