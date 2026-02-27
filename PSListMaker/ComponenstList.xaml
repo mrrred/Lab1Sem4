@@ -15,8 +15,8 @@
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0">
-            <MenuItem Header="Добавить"></MenuItem>
-            <MenuItem Header="Изменить"></MenuItem>
+            <MenuItem Header="Добавить" Click="Add_Button_Click"></MenuItem>
+            <MenuItem Header="Изменить" Click="Edit_Button_Click"></MenuItem>
             <MenuItem Header="Отменить"></MenuItem>
             <MenuItem Header="Сохранить"></MenuItem>
             <MenuItem Header="Удалить"></MenuItem>

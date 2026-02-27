@@ -13,6 +13,7 @@ using System.Windows.Shapes;
 
 using ConsoleApp2.MenuService;
 using PSListMaker.ViewModels;
+using PSListMaker.WindowServices;
 
 namespace PSListMaker
 {
@@ -20,12 +21,32 @@ namespace PSListMaker
     {
         private ComponentsListViewModel _componentsListViewModel;
 
-        public ComponentsList(ComponentsListViewModel componentsListViewModel)
+        private IComponentListService _componentListService;
+
+        public ComponentsList(IComponentListService componentListService, ComponentsListViewModel componentsListViewModel)
         {
             InitializeComponent();
 
             _componentsListViewModel = componentsListViewModel;
+            _componentListService = componentListService;
 
+            CompNameTypeList.ItemsSource = _componentsListViewModel.GetComponents();
+
+            _componentsListViewModel.RegisterOnChange(Update);
+        }
+
+        public void Add_Button_Click(object sender, RoutedEventArgs e)
+        {
+            _componentListService.GetAddWindow().ShowDialog();
+        }
+
+        public void Edit_Button_Click(object sender, RoutedEventArgs e)
+        {
+            _componentListService.GetEditWindow().ShowDialog();
+        }
+
+        public void Update(object? sender, EventArgs e)
+        {
             CompNameTypeList.ItemsSource = _componentsListViewModel.GetComponents();
         }
     }

@@ -17,7 +17,7 @@ namespace PSListMaker.WindowServices
 
         public ComponentsList GetComponentsListWindow()
         {
-            return new ComponentsList(new ViewModels.ComponentsListViewModel(_fileService));
+            return new ComponentsList(new ComponentListService(_fileService), new ViewModels.ComponentsListViewModel(_fileService));
         }
 
         public Specifications GetSpecificationsWindow()

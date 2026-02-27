@@ -30,5 +30,10 @@ namespace PSListMaker.ViewModels
 
             return components;
         }
+
+        public void RegisterOnChange(EventHandler update)
+        {
+            _fileService.ProductsChanged += update;
+        }
     }
 }
