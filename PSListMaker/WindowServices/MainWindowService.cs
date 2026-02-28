@@ -22,7 +22,7 @@ namespace PSListMaker.WindowServices
 
         public Specifications GetSpecificationsWindow()
         {
-            return new Specifications(new ViewModels.SpecificationsViewModel(_fileService));
+            return new Specifications(new SpecificationWindowService(_fileService), new ViewModels.SpecificationsViewModel(_fileService));
         }
     }
 }

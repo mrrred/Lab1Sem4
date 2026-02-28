@@ -5,8 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PSListMaker.Views"
         mc:Ignorable="d"
-        Title="AddSpecificationWindow" Height="450" Width="800">
+        Title="AddSpecificationWindow" Height="200" Width="400">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.3*"/>
+            </Grid.ColumnDefinitions>
+
+            <ListBox Grid.Column="0" x:Name="SpecAddVar"/>
+
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Кратность" Margin="10 0 10 0" HorizontalAlignment="Center"/>
+                <TextBox x:Name="SpecAddValue" Text="1" Margin="10 2 10 0" TextChanged="Muliplicity_TextChanged"/>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" FlowDirection="RightToLeft">
+            <Button Content="Отменить" Click="Close_Button_Click"/>
+            <Button Content="Добавить" Click="Add_Button_Click"/>
+        </StackPanel>
     </Grid>
 </Window>

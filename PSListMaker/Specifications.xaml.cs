@@ -1,7 +1,9 @@
 ﻿using PSListMaker.Models;
 using PSListMaker.ViewModels;
+using PSListMaker.WindowServices;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,12 +19,15 @@ namespace PSListMaker
     public partial class Specifications : Window
     {
         private SpecificationsViewModel _specificationsViewModel;
+        private ISpecificationWindowService _specificationWindowService;
 
-        public Specifications(SpecificationsViewModel specificationsViewModel)
+        public Specifications(ISpecificationWindowService specificationWindowService, 
+            SpecificationsViewModel specificationsViewModel)
         {
             InitializeComponent();
 
             _specificationsViewModel = specificationsViewModel;
+            _specificationWindowService = specificationWindowService;
 
             DataContext = _specificationsViewModel;
         }
@@ -33,6 +38,14 @@ namespace PSListMaker
             {
                 item.IsSelected = true;
                 item.Focus();
+            }
+        }
+
+        public void AddSpecs_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (Components.SelectedItem is ComponentMin selectedComponent)
+            {
+                _specificationWindowService.GetAddWindow(selectedComponent.Name).ShowDialog();
             }
         }
 

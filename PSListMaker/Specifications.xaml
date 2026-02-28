@@ -35,7 +35,7 @@
                     <TextBlock Text="{Binding Name}">
                         <TextBlock.ContextMenu>
                             <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                <MenuItem Header="Добавить">
+                                <MenuItem Header="Добавить" Click="AddSpecs_Button_Click">
                                     <MenuItem.Style>
                                         <Style TargetType="MenuItem">
                                             <Setter Property="IsEnabled" Value="True"/>
