@@ -22,7 +22,7 @@
             <Button Grid.Column="1" Content="Найти"></Button>
         </Grid>
 
-        <TreeView Grid.Row="1"></TreeView>
+        <TreeView x:Name="Components" Grid.Row="1"></TreeView>
         
     </Grid>
 </Window>

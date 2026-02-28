@@ -1,4 +1,5 @@
-﻿using PSListMaker.ViewModels;
+﻿using PSListMaker.Models;
+using PSListMaker.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +23,36 @@ namespace PSListMaker
             InitializeComponent();
 
             _specificationsViewModel = specificationsViewModel;
+
+            FormTree();
+        }
+
+        private void FormTree()
+        {
+            var a = _specificationsViewModel.GetComponentsTree();
+
+            foreach (var component in a)
+            {
+                TreeViewItem item = new TreeViewItem();
+                item.Header = component.Name;
+
+                FormTreeRecursive(component.Specs, item);
+
+                Components.Items.Add(item);
+            }
+        }
+
+        private void FormTreeRecursive(List<ComponentsWithSpecs> components, TreeViewItem item)
+        {
+            foreach (var component in components)
+            {
+                TreeViewItem itemNew = new TreeViewItem();
+                item.Header = component.Name;
+
+                FormTreeRecursive(component.Specs, itemNew);
+
+                item.Items.Add(item);
+            }
         }
     }
 }
