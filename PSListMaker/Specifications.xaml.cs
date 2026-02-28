@@ -54,5 +54,16 @@ namespace PSListMaker
                 item.Items.Add(itemNew);
             }
         }
+
+        private void TreeView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = e.Source as TreeViewItem;
+
+            if (item != null)
+            {
+                item.IsSelected = true;
+                item.Focus();
+            }
+        }
     }
 }

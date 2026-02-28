@@ -22,7 +22,24 @@
             <Button Grid.Column="1" Content="Найти"></Button>
         </Grid>
 
-        <TreeView x:Name="Components" Grid.Row="1"></TreeView>
+        <TreeView x:Name="Components" Grid.Row="1">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <EventSetter Event="PreviewMouseRightButtonDown"
+                 Handler="TreeView_PreviewMouseRightButtonDown"/>
+                    <Setter Property="ContextMenu">
+                        <Setter.Value>
+                            <ContextMenu>
+                                <MenuItem Header="Добавить"/>
+                                <MenuItem Header="Изменить"/>
+                                <MenuItem Header="Удалить"/>
+                            </ContextMenu>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TreeView.ItemContainerStyle>
+        </TreeView>
+        
         
     </Grid>
 </Window>

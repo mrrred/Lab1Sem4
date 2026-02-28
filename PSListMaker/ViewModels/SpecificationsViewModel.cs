@@ -53,5 +53,15 @@ namespace PSListMaker.ViewModels
                 }
             }
         }
+
+        public void AddSpecs(string componentName, string specificationName, ushort multiplicity)
+        {
+            _fileService.Input(componentName, specificationName, multiplicity);
+        }
+
+        public void RemoveSpecs(string componentName, string specificationName)
+        {
+            _fileService.Delete(componentName, specificationName);
+        }
     }
 }
