@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PSListMaker"
+        xmlns:locComSpecs="clr-namespace:PSListMaker.Models"
         mc:Ignorable="d"
         Title="Спецификация" Height="300" Width="340">
     <Grid>
@@ -22,22 +23,42 @@
             <Button Grid.Column="1" Content="Найти"></Button>
         </Grid>
 
-        <TreeView x:Name="Components" Grid.Row="1">
-            <TreeView.ItemContainerStyle>
-                <Style TargetType="TreeViewItem">
-                    <EventSetter Event="PreviewMouseRightButtonDown"
-                 Handler="TreeView_PreviewMouseRightButtonDown"/>
-                    <Setter Property="ContextMenu">
-                        <Setter.Value>
-                            <ContextMenu>
-                                <MenuItem Header="Добавить"/>
-                                <MenuItem Header="Изменить"/>
+        <TreeView x:Name="Components" Grid.Row="1" ItemsSource="{Binding Components}" PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown">
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type locComSpecs:ComponentMin}" ItemsSource="{Binding Specs}">
+                    <TextBlock Text="{Binding Name}">
+                        <TextBlock.ContextMenu>
+                            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem Header="Добавить">
+                                    <MenuItem.Style>
+                                        <Style TargetType="MenuItem">
+                                            <Setter Property="IsEnabled" Value="True"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Type}" Value="Detail">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </MenuItem.Style>
+                                </MenuItem>
+                                <MenuItem Header="Изменить">
+                                    <MenuItem.Style>
+                                        <Style TargetType="MenuItem">
+                                            <Setter Property="IsEnabled" Value="True"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Type}" Value="Product">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </MenuItem.Style>
+                                </MenuItem>
                                 <MenuItem Header="Удалить"/>
                             </ContextMenu>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </TreeView.ItemContainerStyle>
+                        </TextBlock.ContextMenu>
+                    </TextBlock>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
         </TreeView>
         
         

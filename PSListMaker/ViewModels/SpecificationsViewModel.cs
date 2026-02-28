@@ -16,6 +16,8 @@ namespace PSListMaker.ViewModels
             _fileService = fileService;
         }
 
+        public List<ComponentsWithSpecs> Components => GetComponentsTree();
+
         public List<ComponentsWithSpecs> GetComponentsTree()
         {
             var componentsWithSpecs = new List<ComponentsWithSpecs>();
@@ -26,7 +28,8 @@ namespace PSListMaker.ViewModels
             {
                 if (component.Type == ComponentType.Product)
                 {
-                    var componentsWithSpec = new ComponentsWithSpecs(component.Name);
+                    var componentsWithSpec = new ComponentsWithSpecs(component.Name, 
+                        component.Type.ToString());
 
                     AddSpecifications(componentsWithSpec);
 
@@ -45,7 +48,8 @@ namespace PSListMaker.ViewModels
             {
                 foreach (var spec in specs)
                 {
-                    var child = new ComponentsWithSpecs(spec.Name);
+                    var child = new ComponentsWithSpecs(spec.Name, 
+                        _fileService.GetProduct(spec.Name).Type.ToString());
 
                     AddSpecifications(child);
 

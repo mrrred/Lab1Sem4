@@ -24,46 +24,30 @@ namespace PSListMaker
 
             _specificationsViewModel = specificationsViewModel;
 
-            FormTree();
-        }
-
-        private void FormTree()
-        {
-            var a = _specificationsViewModel.GetComponentsTree();
-
-            foreach (var component in a)
-            {
-                TreeViewItem item = new TreeViewItem();
-                item.Header = component.Name;
-
-                FormTreeRecursive(component.Specs, item);
-
-                Components.Items.Add(item);
-            }
-        }
-
-        private void FormTreeRecursive(List<ComponentsWithSpecs> components, TreeViewItem item)
-        {
-            foreach (var component in components)
-            {
-                TreeViewItem itemNew = new TreeViewItem();
-                itemNew.Header = component.Name;
-
-                FormTreeRecursive(component.Specs, itemNew);
-
-                item.Items.Add(itemNew);
-            }
+            DataContext = _specificationsViewModel;
         }
 
         private void TreeView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var item = e.Source as TreeViewItem;
-
+            var original = e.OriginalSource as DependencyObject;
+            var item = FindAncestor<TreeViewItem>(original);
             if (item != null)
             {
                 item.IsSelected = true;
                 item.Focus();
+                e.Handled = true;
             }
+        }
+
+        private static T? FindAncestor<T>(DependencyObject? current) where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T match)
+                    return match;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
         }
     }
 }

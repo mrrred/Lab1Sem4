@@ -4,15 +4,12 @@ using System.Text;
 
 namespace PSListMaker.Models
 {
-    public class ComponentsWithSpecs
+    public class ComponentsWithSpecs : ComponentMin
     {
-        public string Name { get; }
-
         public List<ComponentsWithSpecs> Specs { get; }
 
-        public ComponentsWithSpecs(string name)
+        public ComponentsWithSpecs(string name, string type) : base(name, type)
         {
-            Name = name;
             Specs = new List<ComponentsWithSpecs>();
         }
     }
