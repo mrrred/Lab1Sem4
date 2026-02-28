@@ -27,27 +27,13 @@ namespace PSListMaker
             DataContext = _specificationsViewModel;
         }
 
-        private void TreeView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var original = e.OriginalSource as DependencyObject;
-            var item = FindAncestor<TreeViewItem>(original);
-            if (item != null)
+            if (sender is TreeViewItem item)
             {
                 item.IsSelected = true;
                 item.Focus();
-                e.Handled = true;
             }
-        }
-
-        private static T? FindAncestor<T>(DependencyObject? current) where T : DependencyObject
-        {
-            while (current != null)
-            {
-                if (current is T match)
-                    return match;
-                current = VisualTreeHelper.GetParent(current);
-            }
-            return null;
         }
     }
 }
