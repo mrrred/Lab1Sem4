@@ -24,46 +24,23 @@ namespace PSListMaker
 
             _specificationsViewModel = specificationsViewModel;
 
-            FormTree();
+            DataContext = _specificationsViewModel;
         }
 
-        private void FormTree()
+        private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var a = _specificationsViewModel.GetComponentsTree();
-
-            foreach (var component in a)
-            {
-                TreeViewItem item = new TreeViewItem();
-                item.Header = component.Name;
-
-                FormTreeRecursive(component.Specs, item);
-
-                Components.Items.Add(item);
-            }
-        }
-
-        private void FormTreeRecursive(List<ComponentsWithSpecs> components, TreeViewItem item)
-        {
-            foreach (var component in components)
-            {
-                TreeViewItem itemNew = new TreeViewItem();
-                itemNew.Header = component.Name;
-
-                FormTreeRecursive(component.Specs, itemNew);
-
-                item.Items.Add(itemNew);
-            }
-        }
-
-        private void TreeView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var item = e.Source as TreeViewItem;
-
-            if (item != null)
+            if (sender is TreeViewItem item)
             {
                 item.IsSelected = true;
                 item.Focus();
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _specificationsViewModel.UnRegister();
+
+            base.OnClosed(e);
         }
     }
 }

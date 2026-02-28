@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PSListMaker.Models
 {
-    public struct ComponentMin
+    public class ComponentMin
     {
         public string Name { get; }
 
