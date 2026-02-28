@@ -4,8 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PSListMaker"
+        xmlns:localvm="clr-namespace:PSListMaker.ViewModels"
+        d:DataContext="{d:DesignInstance localvm:ComponentsListViewModel}"
         mc:Ignorable="d"
-        Title="Список компонентов" Height="300" Width="340">
+        Title="Список компонентов" Height="300" Width="350">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -16,16 +18,16 @@
 
         <Menu Grid.Row="0">
             <MenuItem Header="Добавить" Click="Add_Button_Click"></MenuItem>
-            <MenuItem Header="Изменить" Click="Edit_Button_Click"></MenuItem>
-            <MenuItem Header="Отменить"></MenuItem>
-            <MenuItem Header="Сохранить"></MenuItem>
-            <MenuItem Header="Удалить"></MenuItem>
+            <MenuItem x:Name="Edit_Button" Header="Изменить" Click="Edit_Button_Click" IsEnabled="False"></MenuItem>
+            <MenuItem Header="Отменить" IsEnabled="False"></MenuItem>
+            <MenuItem Header="Сохранить" IsEnabled="False"></MenuItem>
+            <MenuItem x:Name="Delete_Button" Header="Удалить" Click="Delete_Button_Click" IsEnabled="False"></MenuItem>
 
         </Menu>
 
         <Separator Height="3" Padding="0 5 0 5" Grid.Row="1"/>
 
-        <ListView x:Name="CompNameTypeList" Grid.Row="2">
+        <ListView x:Name="CompNameTypeList" Grid.Row="2" SelectionChanged="LixtBox_SelectionChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Width="70" Header="Название" DisplayMemberBinding="{Binding Name}" />

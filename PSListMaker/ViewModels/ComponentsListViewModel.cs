@@ -5,12 +5,16 @@ using System.ComponentModel;
 using System.Text;
 
 using PSListMaker.Models;
+using System.Windows.Input;
 
 namespace PSListMaker.ViewModels
 {
     public class ComponentsListViewModel
     {
         private IFileService _fileService;
+
+        public ICommand Undo { get; set; }
+        public ICommand Save { get; set; }
 
         public ComponentsListViewModel(IFileService fileService)
         {
@@ -31,9 +35,21 @@ namespace PSListMaker.ViewModels
             return components;
         }
 
+        public void DeleteComponent(string name)
+        {
+            // With Truncate
+            _fileService.Delete(name);
+            _fileService.Truncate();
+        }
+
         public void RegisterOnChange(EventHandler update)
         {
             _fileService.ProductsChanged += update;
+        }
+
+        public void UnRegisterOnChange(EventHandler update)
+        {
+            _fileService.ProductsChanged -= update;
         }
     }
 }

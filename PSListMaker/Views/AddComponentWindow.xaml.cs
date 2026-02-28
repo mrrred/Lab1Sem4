@@ -17,6 +17,8 @@ namespace PSListMaker.Views
 {
     public partial class AddComponentWindow : Window
     {
+        static private bool IsAddError = false;
+
         private AddComponentWindowViewModel _viewModel;
 
         public AddComponentWindow(AddComponentWindowViewModel viewModel)
@@ -24,6 +26,8 @@ namespace PSListMaker.Views
             InitializeComponent();
 
             _viewModel = viewModel;
+
+            _viewModel.RegisterErrorHandler(ErrorProcess);
         }
 
         public void Add_Button_Click(object sender, RoutedEventArgs e)
@@ -40,9 +44,30 @@ namespace PSListMaker.Views
 
             _viewModel.Add(name, type);
 
+            if (IsAddError)
+            {
+                IsAddError = false;
+            }
+            else
+            {
+                Close();
+            }
+        }
+
+        public void Close_Button_Click(object sender, RoutedEventArgs e)
+        {
             Close();
         }
 
+        static private void ErrorProcess(object? sender, string message)
+        {
+            IsAddError = true;
+        }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            _viewModel.RegisterErrorHandler(ErrorProcess);
+            base.OnClosed(e);
+        }
     }
 }

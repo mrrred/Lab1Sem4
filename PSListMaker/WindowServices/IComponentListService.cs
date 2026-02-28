@@ -9,6 +9,6 @@ namespace PSListMaker.WindowServices
     {
         AddComponentWindow GetAddWindow();
 
-        EditComponentWindow GetEditWindow();
+        EditComponentWindow GetEditWindow(string oldComponentName);
     }
 }

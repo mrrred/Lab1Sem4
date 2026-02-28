@@ -14,5 +14,10 @@ namespace PSListMaker.ViewModels
         {
             _fileService = fileService;
         }
+
+        public void EditComponent(string productName, string newProductName)
+        {
+            _fileService.Edit(productName, newProductName);
+        }
     }
 }

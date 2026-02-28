@@ -5,8 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PSListMaker.Views"
         mc:Ignorable="d"
-        Title="EditCOmponentWindow" Height="450" Width="800">
+        Title="EditComponentWindow" Height="200" Width="400">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <TextBlock Text="Старое наименование" Margin="0 0 10 5"/>
+                <TextBlock x:Name="OldComponentName" Text="" Margin="0 0 10 5"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <TextBlock Text="Новое наименование" Margin="0 0 10 5"/>
+                <TextBox x:Name="ComponentName" Width="150"/>
+            </StackPanel>
+
+            
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" FlowDirection="RightToLeft">
+            <Button Content="Отменить" />
+            <Button Content="Изменить" />
+        </StackPanel>
     </Grid>
 </Window>

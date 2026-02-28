@@ -20,9 +20,9 @@ namespace PSListMaker.WindowServices
             return new AddComponentWindow(new ViewModels.AddComponentWindowViewModel(_fileService));
         }
 
-        public EditComponentWindow GetEditWindow()
+        public EditComponentWindow GetEditWindow(string oldComponentName)
         {
-            return new EditComponentWindow(new ViewModels.EditComponentWindowViewModel(_fileService));
+            return new EditComponentWindow(oldComponentName, new ViewModels.EditComponentWindowViewModel(_fileService));
         }
     }
 }

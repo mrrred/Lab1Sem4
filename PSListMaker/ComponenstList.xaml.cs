@@ -27,6 +27,8 @@ namespace PSListMaker
         {
             InitializeComponent();
 
+            DataContext = _componentsListViewModel;
+
             _componentsListViewModel = componentsListViewModel;
             _componentListService = componentListService;
 
@@ -42,12 +44,36 @@ namespace PSListMaker
 
         public void Edit_Button_Click(object sender, RoutedEventArgs e)
         {
-            _componentListService.GetEditWindow().ShowDialog();
+            if (CompNameTypeList.SelectedItem is Models.ComponentMin select)
+            {
+                _componentListService.GetEditWindow(select.Name).ShowDialog();
+            }
+        }
+
+        public void LixtBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Edit_Button.IsEnabled = CompNameTypeList.SelectedItem != null;
+            Delete_Button.IsEnabled = CompNameTypeList.SelectedItem != null;
         }
 
         public void Update(object? sender, EventArgs e)
         {
             CompNameTypeList.ItemsSource = _componentsListViewModel.GetComponents();
+        }
+
+        public void Delete_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (CompNameTypeList.SelectedItem is Models.ComponentMin select)
+            {
+                _componentsListViewModel.DeleteComponent(select.Name);
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _componentsListViewModel.UnRegisterOnChange(Update);
+
+            base.OnClosed(e);
         }
     }
 }

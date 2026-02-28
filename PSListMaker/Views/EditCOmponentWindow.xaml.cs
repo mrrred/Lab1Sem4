@@ -14,18 +14,17 @@ using System.Windows.Shapes;
 
 namespace PSListMaker.Views
 {
-    /// <summary>
-    /// Логика взаимодействия для EditCOmponentWindow.xaml
-    /// </summary>
     public partial class EditComponentWindow : Window
     {
         private EditComponentWindowViewModel _viewModel;
 
-        public EditComponentWindow(EditComponentWindowViewModel viewModel)
+        public EditComponentWindow(string oldComponentName, EditComponentWindowViewModel viewModel)
         {
             InitializeComponent();
 
             _viewModel = viewModel;
+
+            OldComponentName.Text = oldComponentName;
         }
     }
 }

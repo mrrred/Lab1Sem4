@@ -22,5 +22,15 @@ namespace PSListMaker.ViewModels
         {
             _fileService.Input(name, type);
         }
+
+        public void RegisterErrorHandler(EventHandler<string> errorHandler)
+        {
+            _fileService.ErrorOccurred += errorHandler;
+        }
+
+        public void UnRegisterErrorHandler(EventHandler<string> errorHandler)
+        {
+            _fileService.ErrorOccurred -= errorHandler;
+        }
     }
 }

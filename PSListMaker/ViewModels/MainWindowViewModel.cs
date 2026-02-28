@@ -33,5 +33,15 @@ namespace PSListMaker.ViewModels
         {
             _fileService.Open(path);
         }
+
+        public void RegisterOnError(EventHandler<string> handler)
+        {
+            _fileService.ErrorOccurred += handler;
+        }
+
+        public void UnRegisterOnError(EventHandler<string> handler)
+        {
+            _fileService.ErrorOccurred -= handler;
+        }
     }
 }

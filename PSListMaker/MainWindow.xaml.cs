@@ -29,6 +29,8 @@ namespace PSListMaker
             _windowService = windowService;
 
             DataContext = _mainWindowViewModel;
+
+            _mainWindowViewModel.RegisterOnError(PrintError);
         }
 
         private void DoActiveProgram()
@@ -76,6 +78,17 @@ namespace PSListMaker
         private void Specs_Button_Click(object sender, RoutedEventArgs e)
         {
             _windowService.GetSpecificationsWindow().ShowDialog();
+        }
+
+        private void PrintError(object? sender, string e)
+        {
+            MessageBox.Show(e, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _mainWindowViewModel.UnRegisterOnError(PrintError);
+            base.OnClosed(e);
         }
     }
 }
