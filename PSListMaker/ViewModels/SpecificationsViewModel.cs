@@ -3,6 +3,9 @@ using ConsoleApp2.MenuService;
 using PSListMaker.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace PSListMaker.ViewModels
@@ -14,9 +17,14 @@ namespace PSListMaker.ViewModels
         public SpecificationsViewModel(IFileService fileService)
         {
             _fileService = fileService;
+
+            Components = new(GetComponentsTree());
+
+            _fileService.ProductsChanged += (sender, e) => UpdatePropetys();
         }
 
-        public List<ComponentsWithSpecs> Components => GetComponentsTree();
+        public ObservableCollection<ComponentsWithSpecs> Components { get; private set; }
+
 
         public List<ComponentsWithSpecs> GetComponentsTree()
         {
@@ -66,6 +74,16 @@ namespace PSListMaker.ViewModels
         public void RemoveSpecs(string componentName, string specificationName)
         {
             _fileService.Delete(componentName, specificationName);
+        }
+
+        private void UpdatePropetys()
+        {
+            Components = new ObservableCollection<ComponentsWithSpecs>(GetComponentsTree());
+        }
+
+        public void UnRegister()
+        {
+            _fileService.ProductsChanged -= (sender, e) => UpdatePropetys();
         }
     }
 }

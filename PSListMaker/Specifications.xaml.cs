@@ -35,5 +35,12 @@ namespace PSListMaker
                 item.Focus();
             }
         }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _specificationsViewModel.UnRegister();
+
+            base.OnClosed(e);
+        }
     }
 }
