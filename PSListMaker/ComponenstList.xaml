@@ -44,12 +44,18 @@
 
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <TextBlock Text="Наименование" Margin="0 0 10 0"></TextBlock>
-                <TextBox Width="100"></TextBox>
+                <TextBox x:Name="NameFilter" Width="100" TextChanged="NameFilter_TextChanged"></TextBox>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock Text="Тип" Margin="0 0 10 0"></TextBlock>
-                <ComboBox Width="70"></ComboBox>
+                <ComboBox x:Name="TypeFilter" Width="70" SelectedIndex="0" SelectionChanged="TypeFilter_Changed">
+                    <TextBlock Text=""/>
+                    <TextBlock Text="Product"/>
+                    <TextBlock Text="Node"/>
+                    <TextBlock Text="Detail"/>
+                </ComboBox>
+                
             </StackPanel>
         </Grid>
     </Grid>

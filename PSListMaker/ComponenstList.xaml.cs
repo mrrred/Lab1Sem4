@@ -27,14 +27,14 @@ namespace PSListMaker
         {
             InitializeComponent();
 
-            DataContext = _componentsListViewModel;
-
             _componentsListViewModel = componentsListViewModel;
             _componentListService = componentListService;
 
             CompNameTypeList.ItemsSource = _componentsListViewModel.GetComponents();
 
             _componentsListViewModel.RegisterOnChange(Update);
+
+            DataContext = _componentsListViewModel;
         }
 
         public void Add_Button_Click(object sender, RoutedEventArgs e)
@@ -58,7 +58,29 @@ namespace PSListMaker
 
         public void Update(object? sender, EventArgs e)
         {
-            CompNameTypeList.ItemsSource = _componentsListViewModel.GetComponents();
+            CompNameTypeList.ItemsSource = GetFilterComponents();
+        }
+
+        private List<Models.ComponentMin> GetFilterComponents()
+        {
+            if (_componentsListViewModel == null)
+            {
+                return new List<Models.ComponentMin>();
+            }
+
+            var list = _componentsListViewModel.GetComponents();
+            
+            if (NameFilter.Text != "")
+            {
+                list = list.FindAll(x => x.Name.Contains(NameFilter.Text));
+            }
+
+            if (TypeFilter.Text != "")
+            {
+                list = list.FindAll(x => x.Type.Contains((TypeFilter.SelectedItem as TextBlock)?.Text ?? ""));
+            }
+
+            return list;
         }
 
         public void Delete_Button_Click(object sender, RoutedEventArgs e)
@@ -67,6 +89,16 @@ namespace PSListMaker
             {
                 _componentsListViewModel.DeleteComponent(select.Name);
             }
+        }
+
+        public void NameFilter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Update(sender, e);
+        }
+
+        public void TypeFilter_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            Update(sender, e);
         }
 
         protected override void OnClosed(EventArgs e)
