@@ -29,14 +29,25 @@ namespace PSListMaker
 
         private void TreeView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var item = e.Source as TreeViewItem;
-
+            var original = e.OriginalSource as DependencyObject;
+            var item = FindAncestor<TreeViewItem>(original);
             if (item != null)
             {
                 item.IsSelected = true;
                 item.Focus();
+                e.Handled = true;
             }
         }
 
+        private static T? FindAncestor<T>(DependencyObject? current) where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T match)
+                    return match;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
+        }
     }
 }

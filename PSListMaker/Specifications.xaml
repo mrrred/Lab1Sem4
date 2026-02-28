@@ -23,7 +23,7 @@
             <Button Grid.Column="1" Content="Найти"></Button>
         </Grid>
 
-        <TreeView x:Name="Components" Grid.Row="1" ItemsSource="{Binding Components}">
+        <TreeView x:Name="Components" Grid.Row="1" ItemsSource="{Binding Components}" PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown">
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type locComSpecs:ComponentMin}" ItemsSource="{Binding Specs}">
                     <TextBlock Text="{Binding Name}">
