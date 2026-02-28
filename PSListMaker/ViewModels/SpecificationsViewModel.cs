@@ -39,19 +39,17 @@ namespace PSListMaker.ViewModels
 
         private void AddSpecifications(ComponentsWithSpecs component)
         {
-            var componentsWithSpecs = new List<ComponentsWithSpecs>();
-
             var specs = _fileService.GetProductSpecifications(component.Name);
 
             if (specs != null)
             {
                 foreach (var spec in specs)
                 {
-                    var componentsWithSpec = new ComponentsWithSpecs(spec.Name);
+                    var child = new ComponentsWithSpecs(spec.Name);
 
-                    AddSpecifications(componentsWithSpec);
+                    AddSpecifications(child);
 
-                    componentsWithSpecs.Add(componentsWithSpec);
+                    component.Specs.Add(child);
                 }
             }
         }

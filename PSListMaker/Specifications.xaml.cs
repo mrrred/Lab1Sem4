@@ -47,11 +47,11 @@ namespace PSListMaker
             foreach (var component in components)
             {
                 TreeViewItem itemNew = new TreeViewItem();
-                item.Header = component.Name;
+                itemNew.Header = component.Name;
 
                 FormTreeRecursive(component.Specs, itemNew);
 
-                item.Items.Add(item);
+                item.Items.Add(itemNew);
             }
         }
     }

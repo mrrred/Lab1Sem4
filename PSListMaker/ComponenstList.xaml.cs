@@ -75,7 +75,7 @@ namespace PSListMaker
                 list = list.FindAll(x => x.Name.Contains(NameFilter.Text));
             }
 
-            if (TypeFilter.Text != "")
+            if (((TypeFilter.SelectedItem as TextBlock)?.Text ?? "") != "")
             {
                 list = list.FindAll(x => x.Type.Contains((TypeFilter.SelectedItem as TextBlock)?.Text ?? ""));
             }

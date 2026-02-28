@@ -86,6 +86,11 @@ namespace ConsoleApp2.Data
                 specHeader.FirstRecPtr = offset;
             }
 
+            // Ensure spec has a readable name by resolving the component it points to
+            var comp = _productCache.Values.FirstOrDefault(p => p.FileOffset == spec.ComponentPtr);
+            if (comp != null)
+                spec.SetName(comp.Name);
+
             _specListCache[productOffset].Add(spec);
         }
 
@@ -471,12 +476,16 @@ namespace ConsoleApp2.Data
                             {
                                 var spec = _specSerializer.ReadFromFile(reader2);
                                 spec.FileOffset = specOffset;
-                                
+
                                 if (!_specListCache.ContainsKey(product.FileOffset))
                                 {
                                     _specListCache[product.FileOffset] = new List<Spec>();
                                 }
-                                
+
+                                var comp = _productCache.Values.FirstOrDefault(p => p.FileOffset == spec.ComponentPtr);
+                                if (comp != null)
+                                    spec.SetName(comp.Name);
+
                                 _specListCache[product.FileOffset].Add(spec);
                                 specOffset = spec.NextSpecPtr;
                             }

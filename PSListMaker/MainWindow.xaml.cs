@@ -62,12 +62,12 @@ namespace PSListMaker
             openFileDialog.FilterIndex = 1;
             openFileDialog.Title = "Выберите файл для открытия";
 
-            if (openFileDialog.ShowDialog() == true)
+            if (openFileDialog.ShowDialog() == true || !openFileDialog.FileName.IsWhiteSpace())
             {
                 _mainWindowViewModel.OpenFile(openFileDialog.FileName);
-            }
 
-            DoActiveProgram();
+                DoActiveProgram();
+            }
         }
 
         private void Components_Button_Click(object sender, RoutedEventArgs e)

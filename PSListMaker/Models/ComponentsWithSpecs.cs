@@ -13,7 +13,7 @@ namespace PSListMaker.Models
         public ComponentsWithSpecs(string name)
         {
             Name = name;
-            Specs = [];
+            Specs = new List<ComponentsWithSpecs>();
         }
     }
 }
