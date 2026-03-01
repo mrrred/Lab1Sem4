@@ -32,6 +32,9 @@ namespace PSListMaker
 
             CompNameTypeList.ItemsSource = _componentsListViewModel.GetComponents();
 
+            Undo_Button.IsEnabled = _componentsListViewModel.IsCanUndo;
+            Save_Button.IsEnabled = _componentsListViewModel.IsUnsave;
+
             _componentsListViewModel.RegisterOnChange(Update);
 
             DataContext = _componentsListViewModel;
@@ -64,11 +67,15 @@ namespace PSListMaker
         public void Save_Button_Click(object sender, RoutedEventArgs e)
         {
             _componentsListViewModel.Save();
+            Undo_Button.IsEnabled = _componentsListViewModel?.IsCanUndo ?? false;
+            Save_Button.IsEnabled = _componentsListViewModel?.IsUnsave ?? false;
         }
 
         public void Update(object? sender, EventArgs e)
         {
             CompNameTypeList.ItemsSource = GetFilterComponents();
+            Undo_Button.IsEnabled = _componentsListViewModel?.IsCanUndo ?? false;
+            Save_Button.IsEnabled = _componentsListViewModel?.IsUnsave ?? false;
         }
 
         private List<Models.ComponentMin> GetFilterComponents()

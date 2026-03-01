@@ -29,6 +29,10 @@ namespace PSListMaker.Models
     {
         void DeleteTempFiles();
 
+        bool IsCanUndo {  get; }
+
+        bool IsUnsave { get; }
+
         void Undo();
 
         void Save();
@@ -42,6 +46,10 @@ namespace PSListMaker.Models
 
         private TempSaver _tempSaver;
 
+        public bool IsCanUndo => _commandBuffer.Count > 0;
+
+        public bool IsUnsave { get; private set; } = false;
+
         public void ClearUndoBuffer()
         {
             _commandBuffer.Clear();
@@ -50,6 +58,11 @@ namespace PSListMaker.Models
         public void Undo()
         {
             _commandBuffer.Pop().Undo();
+
+            if (_commandBuffer.Count == 0)
+            {
+                IsUnsave = false;
+            }
         }
 
         public void Save()
@@ -57,6 +70,8 @@ namespace PSListMaker.Models
             _commandBuffer.Clear();
 
             _tempSaver.SaveToOrigin();
+
+            IsUnsave = false;
         }
 
         public void DeleteTempFiles()
@@ -73,7 +88,7 @@ namespace PSListMaker.Models
 
             base.Close();
 
-            Open(Path.Combine(directoryPath, productFileName));
+            Open(Path.Combine(directoryPath, $"{productFileName}.prd"));
         }
 
         public override void Open(string fullProductPath)
@@ -100,6 +115,8 @@ namespace PSListMaker.Models
 
         public override void Input(string componentName, ComponentType type)
         {
+            IsUnsave = true;
+
             _commandBuffer.Push(new UndebleCommand((object? sender, EventArgs e) => 
             {
                 List<string> deletedItems = GetDeletedComps();
@@ -121,6 +138,8 @@ namespace PSListMaker.Models
 
         public override void Input(string componentName, string specificationName)
         {
+            IsUnsave = true;
+
             _commandBuffer.Push(new UndebleCommand((object? sender, EventArgs e) =>
             {
                 List<string> deletedItems = GetDeletedComps();
@@ -142,6 +161,8 @@ namespace PSListMaker.Models
 
         public override void Input(string componentName, string specificationName, ushort multiplicity)
         {
+            IsUnsave = true;
+
             _commandBuffer.Push(new UndebleCommand((object? sender, EventArgs e) =>
             {
                 List<string> deletedItems = GetDeletedComps();
@@ -163,6 +184,8 @@ namespace PSListMaker.Models
 
         public override void Delete(string componentName)
         {
+            IsUnsave = true;
+
             _commandBuffer.Push(new UndebleCommand((object? sender, EventArgs e) =>
             {
                 base.Restore(componentName);
@@ -174,6 +197,8 @@ namespace PSListMaker.Models
 
         public override void Delete(string componentName, string specificationName)
         {
+            IsUnsave = true;
+
             _commandBuffer.Push(new UndebleCommand((object? sender, EventArgs e) =>
             {
                 ushort m = base.GetProductSpecifications(componentName).First(x => x.Name == specificationName).Multiplicity;
@@ -187,6 +212,8 @@ namespace PSListMaker.Models
 
         public override void Edit(string productName, string newProductName)
         {
+            IsUnsave = true;
+
             _commandBuffer.Push(new UndebleCommand((object? sender, EventArgs e) =>
             {
                 base.Edit(newProductName, productName);
@@ -198,6 +225,8 @@ namespace PSListMaker.Models
 
         public override void EditSpec(string productName, string specName, ushort newMultiplicity)
         {
+            IsUnsave = true;
+
             _commandBuffer.Push(new UndebleCommand((object? sender, EventArgs e) =>
             {
                 ushort oldM = base.GetProductSpecifications(productName).First(x => x.Name == specName).Multiplicity;
@@ -211,6 +240,8 @@ namespace PSListMaker.Models
 
         public override void Restore()
         {
+            IsUnsave = true;
+
             List<string> deletedItems = GetDeletedComps();
             List<(string, string)> deletedSpecs = GetDeletedSpecs(deletedItems);
 
@@ -225,6 +256,8 @@ namespace PSListMaker.Models
 
         public override void Restore(string componentName)
         {
+            IsUnsave = true;
+
             _commandBuffer.Push(new UndebleCommand((object? sender, EventArgs e) =>
             {
                 base.Delete(componentName);
@@ -236,6 +269,8 @@ namespace PSListMaker.Models
 
         public override void Truncate()
         {
+            IsUnsave = true;
+
             List<(string, ComponentType)> deletedItems = GetDeletedCompsWithType();
             List<(string, string, ushort)> deletedSpecs = GetDeletedSpecsWithMult(deletedItems.Select(x => x.Item1).ToList());
 

@@ -13,6 +13,10 @@ namespace PSListMaker.ViewModels
     {
         private IFileServiceWithActionHistory _fileService;
 
+        public bool IsUnsave => _fileService.IsUnsave;
+
+        public bool IsCanUndo => _fileService.IsCanUndo;
+
         public ComponentsListViewModel(IFileServiceWithActionHistory fileService)
         {
             _fileService = fileService;
