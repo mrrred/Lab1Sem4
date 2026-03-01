@@ -1,4 +1,5 @@
 ﻿using ConsoleApp2.MenuService;
+using PSListMaker.Models;
 using PSListMaker.ViewModels;
 using PSListMaker.WindowServices;
 using System.Configuration;
@@ -13,7 +14,7 @@ namespace PSListMaker
     {
         public App()
         {
-            IFileService fileService = new FileService();
+            IFileServiceWithActionHistory fileService = new FileServiceWithActionHistory();
 
             IMainWindowService windowService = new MainWindowService(fileService);
 

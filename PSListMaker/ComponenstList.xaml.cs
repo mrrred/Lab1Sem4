@@ -56,6 +56,16 @@ namespace PSListMaker
             Delete_Button.IsEnabled = CompNameTypeList.SelectedItem != null;
         }
 
+        public void Undo_Button_Click(object sender, RoutedEventArgs e)
+        {
+            _componentsListViewModel.Undo();
+        }
+
+        public void Save_Button_Click(object sender, RoutedEventArgs e)
+        {
+            _componentsListViewModel.Save();
+        }
+
         public void Update(object? sender, EventArgs e)
         {
             CompNameTypeList.ItemsSource = GetFilterComponents();

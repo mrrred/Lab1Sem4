@@ -88,6 +88,7 @@ namespace PSListMaker
         protected override void OnClosed(EventArgs e)
         {
             _mainWindowViewModel.UnRegisterOnError(PrintError);
+            _mainWindowViewModel.DeleteTempFiles();
             base.OnClosed(e);
         }
     }

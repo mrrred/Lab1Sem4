@@ -21,7 +21,7 @@ namespace ConsoleApp2.MenuService
             _filesOpen = false;
         }
 
-        public void Create(string directoryPath, string productFileName, string specFileName, short dataLength)
+        public virtual void Create(string directoryPath, string productFileName, string specFileName, short dataLength)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace ConsoleApp2.MenuService
                 if (dataLength <= 0 || dataLength > 32000)
                     throw new ArgumentException("Data length must be between 1 and 32000.");
 
-                Close();
+                CloseWithoutVirtual();
                 string fullProductPath = Path.Combine(directoryPath, productFileName + ".prd");
                 string fullSpecPath = Path.Combine(directoryPath, specFileName + ".prs");
 
@@ -64,7 +64,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Open(string fullProductPath)
+        public virtual void Open(string fullProductPath)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace ConsoleApp2.MenuService
                 if (!File.Exists(fullProductPath))
                     throw new FileNotFoundException($"Product file not found: {fullProductPath}");
 
-                Close();
+                CloseWithoutVirtual();
 
                 string directory = Path.GetDirectoryName(fullProductPath);
                 if (string.IsNullOrEmpty(directory))
@@ -107,7 +107,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Close()
+        public virtual void Close()
         {
             try
             {
@@ -124,7 +124,24 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Input(string componentName, ComponentType type)
+        private void CloseWithoutVirtual()
+        {
+            try
+            {
+                if (_filesOpen && _productRepo != null)
+                {
+                    _productRepo.Close();
+                    _filesOpen = false;
+                    _productRepo = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                OnError(ex.Message);
+            }
+        }
+
+        public virtual void Input(string componentName, ComponentType type)
         {
             try
             {
@@ -144,12 +161,12 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Input(string componentName, string specificationName)
+        public virtual void Input(string componentName, string specificationName)
         {
             Input(componentName, specificationName, 1);
         }
 
-        public void Input(string componentName, string specificationName, ushort multiplicity)
+        public virtual void Input(string componentName, string specificationName, ushort multiplicity)
         {
             try
             {
@@ -183,7 +200,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Delete(string componentName)
+        public virtual void Delete(string componentName)
         {
             try
             {
@@ -203,7 +220,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Delete(string componentName, string specificationName)
+        public virtual void Delete(string componentName, string specificationName)
         {
             try
             {
@@ -230,7 +247,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Edit(string productName, string newProductName)
+        public virtual void Edit(string productName, string newProductName)
         {
             try
             {
@@ -257,7 +274,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void EditSpec(string productName, string specName, ushort newMultiplicity)
+        public virtual void EditSpec(string productName, string specName, ushort newMultiplicity)
         {
             try
             {
@@ -287,7 +304,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Restore(string componentName)
+        public virtual void Restore(string componentName)
         {
             try
             {
@@ -307,7 +324,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Restore()
+        public virtual void Restore()
         {
             try
             {
@@ -323,7 +340,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Truncate()
+        public virtual void Truncate()
         {
             try
             {
@@ -339,7 +356,7 @@ namespace ConsoleApp2.MenuService
             }
         }
 
-        public void Print(string componentName)
+        public virtual void Print(string componentName)
         {
             try
             {

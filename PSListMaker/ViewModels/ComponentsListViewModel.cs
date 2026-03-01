@@ -11,12 +11,9 @@ namespace PSListMaker.ViewModels
 {
     public class ComponentsListViewModel
     {
-        private IFileService _fileService;
+        private IFileServiceWithActionHistory _fileService;
 
-        public ICommand Undo { get; set; }
-        public ICommand Save { get; set; }
-
-        public ComponentsListViewModel(IFileService fileService)
+        public ComponentsListViewModel(IFileServiceWithActionHistory fileService)
         {
             _fileService = fileService;
         }
@@ -40,6 +37,16 @@ namespace PSListMaker.ViewModels
             // With Truncate
             _fileService.Delete(name);
             _fileService.Truncate();
+        }
+
+        public void Save()
+        {
+            _fileService.Save();
+        }
+
+        public void Undo()
+        {
+            _fileService.Undo();
         }
 
         public void RegisterOnChange(EventHandler update)

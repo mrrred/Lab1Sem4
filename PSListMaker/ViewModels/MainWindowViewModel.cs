@@ -1,21 +1,22 @@
 ﻿using ConsoleApp2.MenuService;
 using PSListMaker.Commands;
+using PSListMaker.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using System.IO;
 
 namespace PSListMaker.ViewModels
 {
     public class MainWindowViewModel
     {
-        private readonly IFileService _fileService;
+        private readonly IFileServiceWithActionHistory _fileService;
 
 
-        public MainWindowViewModel(IFileService fileService)
+        public MainWindowViewModel(IFileServiceWithActionHistory fileService)
         {
             _fileService = fileService;
         }
@@ -32,6 +33,12 @@ namespace PSListMaker.ViewModels
         public void OpenFile(string path)
         {
             _fileService.Open(path);
+        }
+
+        public void DeleteTempFiles()
+        {
+            _fileService.Close();
+            _fileService.DeleteTempFiles();
         }
 
         public void RegisterOnError(EventHandler<string> handler)
