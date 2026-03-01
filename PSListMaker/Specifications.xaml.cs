@@ -49,12 +49,27 @@ namespace PSListMaker
             }
         }
 
+        public void Change_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (Components.SelectedItem is ComponentsWithMult selectedComponent)
+            {
+                _specificationWindowService.GetChangeMultiplicityWindow(
+                    selectedComponent?.Parent?.Name ?? "", selectedComponent?.Name ?? "")
+                    .ShowDialog();
+            }
+        }
+
         public void Delete_Button_Click(object sender, RoutedEventArgs e)
         {
             if (Components.SelectedItem is ComponentsWithMult selectedComponent)
             {
                 _specificationsViewModel.RemoveSpecs(selectedComponent?.Parent?.Name ?? "", selectedComponent?.Name ?? "");
             }
+        }
+
+        public void Edit_Button_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
 
         protected override void OnClosed(EventArgs e)

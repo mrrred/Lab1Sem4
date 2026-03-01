@@ -20,5 +20,12 @@ namespace PSListMaker.WindowServices
             return new AddSpecificationWindow(componentName, 
                 new ViewModels.AddSpecificationWindowViewModel(componentName, _fileService));
         }
+
+        public ChangeMultiplicityWindow GetChangeMultiplicityWindow(string componentName, 
+            string specName)
+        {
+            return new ChangeMultiplicityWindow(
+                new ViewModels.ChangeMultiplicityWindowViewModel(componentName, specName, _fileService));
+        }
     }
 }

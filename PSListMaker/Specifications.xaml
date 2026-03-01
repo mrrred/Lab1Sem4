@@ -47,7 +47,7 @@
                                         </Style>
                                     </MenuItem.Style>
                                 </MenuItem>
-                                <MenuItem Header="Изменить">
+                                <MenuItem Header="Изменить" Click="Change_Button_Click">
                                     <MenuItem.Style>
                                         <Style TargetType="MenuItem">
                                             <Setter Property="IsEnabled" Value="True"/>

@@ -8,5 +8,8 @@ namespace PSListMaker.WindowServices
     public interface ISpecificationWindowService
     {
         AddSpecificationWindow GetAddWindow(string componentName);
+
+        ChangeMultiplicityWindow GetChangeMultiplicityWindow(string componentName,
+            string specName);
     }
 }
