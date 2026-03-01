@@ -37,7 +37,7 @@ namespace PSListMaker.ViewModels
                 if (component.Type == ComponentType.Product)
                 {
                     var componentsWithSpec = new ComponentsWithSpecs(component.Name, 
-                        component.Type.ToString());
+                        component.Type.ToString(), 0);
 
                     AddSpecifications(componentsWithSpec);
 
@@ -57,7 +57,8 @@ namespace PSListMaker.ViewModels
                 foreach (var spec in specs)
                 {
                     var child = new ComponentsWithSpecs(spec.Name, 
-                        _fileService.GetProduct(spec.Name).Type.ToString());
+                        _fileService.GetProduct(spec.Name).Type.ToString(), spec.Multiplicity,
+                        component);
 
                     AddSpecifications(child);
 
@@ -76,9 +77,19 @@ namespace PSListMaker.ViewModels
             _fileService.Delete(componentName, specificationName);
         }
 
+        public void EditSpecs(string componentName, string specificationName, ushort newMultiplicity)
+        {
+            _fileService.EditSpec(componentName, specificationName, newMultiplicity);
+        }
+
         private void UpdatePropetys()
         {
-            Components = new ObservableCollection<ComponentsWithSpecs>(GetComponentsTree());
+            Components.Clear();
+
+            foreach (var component in GetComponentsTree())
+            {
+                Components.Add(component);
+            }
         }
 
         public void UnRegister()

@@ -18,7 +18,7 @@ namespace PSListMaker.WindowServices
         public AddSpecificationWindow GetAddWindow(string componentName)
         {
             return new AddSpecificationWindow(componentName, 
-                new ViewModels.AddSpecificationWindowViewModel(_fileService));
+                new ViewModels.AddSpecificationWindowViewModel(componentName, _fileService));
         }
     }
 }

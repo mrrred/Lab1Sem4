@@ -49,6 +49,14 @@ namespace PSListMaker
             }
         }
 
+        public void Delete_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (Components.SelectedItem is ComponentsWithMult selectedComponent)
+            {
+                _specificationsViewModel.RemoveSpecs(selectedComponent?.Parent?.Name ?? "", selectedComponent?.Name ?? "");
+            }
+        }
+
         protected override void OnClosed(EventArgs e)
         {
             _specificationsViewModel.UnRegister();

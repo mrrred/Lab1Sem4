@@ -31,8 +31,8 @@
                 </Style>
             </TreeView.ItemContainerStyle>
         <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type locComSpecs:ComponentMin}" ItemsSource="{Binding Specs}">
-                    <TextBlock Text="{Binding Name}">
+                <HierarchicalDataTemplate DataType="{x:Type locComSpecs:ComponentsWithMult}" ItemsSource="{Binding Specs}">
+                    <TextBlock Text="{Binding NameWithMultString}">
                         <TextBlock.ContextMenu>
                             <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                 <MenuItem Header="Добавить" Click="AddSpecs_Button_Click">
@@ -59,7 +59,7 @@
                                         </Style>
                                     </MenuItem.Style>
                                 </MenuItem>
-                                <MenuItem Header="Удалить"/>
+                                <MenuItem Header="Удалить" Click="Delete_Button_Click"/>
                             </ContextMenu>
                         </TextBlock.ContextMenu>
                     </TextBlock>

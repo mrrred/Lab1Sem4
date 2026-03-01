@@ -40,7 +40,7 @@ namespace PSListMaker.Views
             {
                 ushort multiplicity = Convert.ToUInt16(SpecAddValue.Text);
 
-                _viewModel.AddSpecification(_componentName, SpecAddVar.SelectedItem.ToString(), multiplicity);
+                _viewModel.AddSpecification((SpecAddVar.SelectedItem as string) ?? "", multiplicity);
 
                 DialogResult = true;
                 Close();
