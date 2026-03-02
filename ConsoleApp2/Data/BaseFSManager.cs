@@ -39,14 +39,20 @@ namespace ConsoleApp2.Data
 
         public void CreateFile()
         {
+            if (_fileStream != null) _fileStream.Close();
+
             if (File.Exists(_filePath))
+            {
                 File.Delete(_filePath);
+            }
 
             _fileStream = new FileStream(_filePath, FileMode.CreateNew, FileAccess.ReadWrite);
         }
 
         public void OpenFile()
         {
+            if (_fileStream != null) _fileStream.Close();
+
             if (!File.Exists(_filePath))
                 throw new FileNotFoundException($"File not found at {_filePath}.");
 

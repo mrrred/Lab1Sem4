@@ -57,12 +57,12 @@ namespace PSListMaker.Models
 
         public void Undo()
         {
-            _commandBuffer.Pop().Undo();
-
-            if (_commandBuffer.Count == 0)
+            if (_commandBuffer.Count == 1)
             {
                 IsUnsave = false;
             }
+
+            _commandBuffer.Pop().Undo();
         }
 
         public void Save()

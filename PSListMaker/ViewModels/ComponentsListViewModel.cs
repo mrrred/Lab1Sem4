@@ -38,13 +38,12 @@ namespace PSListMaker.ViewModels
 
         public void DeleteComponent(string name)
         {
-            // With Truncate
             _fileService.Delete(name);
-            _fileService.Truncate();
         }
 
         public void Save()
         {
+            _fileService.Truncate();
             _fileService.Save();
         }
 
