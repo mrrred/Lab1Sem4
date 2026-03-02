@@ -73,7 +73,7 @@ namespace ConsoleApp2.Data
 
             int offset = (int)_specFsManager.GetStream().Length;
             spec.FileOffset = offset;
-            
+
             _specFsManager.Seek(offset);
             using (var writer = new BinaryWriter(_specFsManager.GetStream(), Encoding.UTF8, leaveOpen: true))
             {
@@ -81,8 +81,21 @@ namespace ConsoleApp2.Data
             }
             _specFsManager.GetStream().Flush();
 
+            if (!_specHeaderCache.ContainsKey(productOffset))
+            {
+                var product = _productCache.Values.FirstOrDefault(p => p.FileOffset == productOffset);
+                if (product != null && product.SpecPtr != -1)
+                {
+                    _specHeaderCache[productOffset] = new SpecHeader(-1, product.SpecPtr + SpecHeader.GetHeaderSize());
+                }
+                else if (product != null)
+                {
+                    _specHeaderCache[productOffset] = new SpecHeader(-1, SpecHeader.GetHeaderSize());
+                }
+            }
+
             var specHeader = _specHeaderCache[productOffset];
-            if (specHeader.FirstRecPtr == -1)
+            if (specHeader != null && specHeader.FirstRecPtr == -1)
             {
                 specHeader.FirstRecPtr = offset;
             }

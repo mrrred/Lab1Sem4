@@ -213,12 +213,43 @@ namespace ConsoleApp2.Data
             if (spec == null)
                 throw new ArgumentNullException(nameof(spec));
 
-            int specOffset = (int)_specFsManager.GetStream().Length;
+            var specHeader = _listManager.GetSpecHeader(product.FileOffset);
 
+            if (specHeader == null)
+            {
+                int specHeaderOffset;
+                bool isNewSpecPtr = false;
+
+                if (product.SpecPtr == -1)
+                {
+                    specHeaderOffset = (int)_specFsManager.GetStream().Length;
+                    product.SpecPtr = specHeaderOffset;
+                    isNewSpecPtr = true;
+                }
+                else
+                {
+                    specHeaderOffset = product.SpecPtr;
+                }
+
+                specHeader = new SpecHeader(-1, specHeaderOffset + SpecHeader.GetHeaderSize());
+                _specFsManager.Seek(specHeaderOffset);
+                using (var writer = new BinaryWriter(_specFsManager.GetStream(), Encoding.UTF8, leaveOpen: true))
+                {
+                    writer.Write(specHeader.FirstRecPtr);
+                    writer.Write(specHeader.UnclaimedPtr);
+                }
+                _specFsManager.GetStream().Flush();
+
+                if (isNewSpecPtr)
+                {
+                    _listManager.UpdateProduct(product);
+                }
+            }
+
+            int specOffset = (int)_specFsManager.GetStream().Length;
             spec.FileOffset = specOffset;
 
-            var specHeader = _listManager.GetSpecHeader(product.FileOffset);
-            if (specHeader != null && specHeader.FirstRecPtr != -1)
+            if (specHeader.FirstRecPtr != -1)
             {
                 int currentOffset = specHeader.FirstRecPtr;
                 Spec lastSpec = null;
