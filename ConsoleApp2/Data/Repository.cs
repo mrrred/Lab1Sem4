@@ -344,5 +344,11 @@ namespace ConsoleApp2.Data
 
             _listManager.EditSpec(product.FileOffset, specComponent.FileOffset, newMultiplicity);
         }
+
+        public void ChangeSpecFileName(string newSpecFileName)
+        {
+            _productHeader.SetSpecFileName(newSpecFileName);
+            _productFsManager.WriteHeader(_productHeader);
+        }
     }
 }

@@ -23,6 +23,7 @@ namespace ConsoleApp2.MenuService
         void Print();
         void Help();
         void Help(string fileName);
+        void ChangeSpecFileName(string newSpecFileName);
 
         IEnumerable<Product> GetAllProducts();
         Product GetProduct(string productName);

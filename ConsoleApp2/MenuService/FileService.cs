@@ -407,6 +407,25 @@ namespace ConsoleApp2.MenuService
             PrintHelp(fileName);
         }
 
+        public virtual void ChangeSpecFileName(string newSpecFileName)
+        {
+            try
+            {
+                if (!ValidateFilesOpen())
+                    return;
+
+                if (string.IsNullOrWhiteSpace(newSpecFileName))
+                    throw new ArgumentException("Specification file name cannot be null or empty.");
+
+                _productRepo.ChangeSpecFileName(newSpecFileName);
+                OnProductsChanged();
+            }
+            catch (Exception ex)
+            {
+                OnError(ex.Message);
+            }
+        }
+
         public IEnumerable<Product> GetAllProducts()
         {
             try
