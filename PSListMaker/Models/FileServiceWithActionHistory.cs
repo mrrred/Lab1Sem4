@@ -100,6 +100,9 @@ namespace PSListMaker.Models
 
             _tempSaver = new TempSaver(fullProductPath);
             _tempSaver.CreateTempFile();
+
+            // Здесь в Open нужно поченить проблему с загаловками
+
             base.Open(_tempSaver.TempPath);
         }
 

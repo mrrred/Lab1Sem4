@@ -26,12 +26,15 @@ namespace ConsoleApp2.MenuService
 
         public void SaveToOrigin()
         {
-            if (TempPath == null || TempPath == string.Empty)
+            if (TempPath == null || TempPath == string.Empty 
+                || _specTempPath == null || _specTempPath == string.Empty)
             {
                 throw new InvalidOperationException("Temp file does not exist.");
             }
 
             File.Copy(TempPath, _path, true);
+            //File.Copy(_specTempPath, Path.Combine(Path.GetDirectoryName(_path) ?? Path.GetTempPath(),
+            //    $"{Path.GetFileNameWithoutExtension(_path)}.prs"), true);
         }
 
         public void CreateTempFile()

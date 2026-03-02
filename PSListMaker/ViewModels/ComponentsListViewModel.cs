@@ -24,8 +24,6 @@ namespace PSListMaker.ViewModels
 
         public List<ComponentMin> GetComponents()
         {
-            // Пока так
-
             List<ComponentMin> components = new List<ComponentMin>();
 
             foreach(var comp in _fileService.GetAllProducts())
