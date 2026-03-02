@@ -93,7 +93,18 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            //_fileService.Create(input);
+            var stringSplit = input.Split(' ');
+
+            if (stringSplit.Length < 2)
+            {
+                Console.WriteLine("Error: not enough arguments");
+                return true;
+            }
+
+            _fileService.Create(AppDomain.CurrentDomain.BaseDirectory,
+                Path.GetFileNameWithoutExtension(stringSplit[0]),
+                Path.GetFileNameWithoutExtension(stringSplit[0]),
+                (short)(Convert.ToUInt16(stringSplit[1])));
             return true;
         }
     }

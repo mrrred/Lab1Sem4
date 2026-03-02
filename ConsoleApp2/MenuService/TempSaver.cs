@@ -12,7 +12,7 @@ namespace ConsoleApp2.MenuService
 
         public string? TempPath { get; private set; }
 
-        private string? _specTempPath;
+        public string? SpecTempPath { get; private set; }
 
         public TempSaver(string pathOriginal)
         {
@@ -27,7 +27,7 @@ namespace ConsoleApp2.MenuService
         public void SaveToOrigin()
         {
             if (TempPath == null || TempPath == string.Empty 
-                || _specTempPath == null || _specTempPath == string.Empty)
+                || SpecTempPath == null || SpecTempPath == string.Empty)
             {
                 throw new InvalidOperationException("Temp file does not exist.");
             }
@@ -44,11 +44,11 @@ namespace ConsoleApp2.MenuService
             File.Create(TempPath).Close();
             File.Copy(_path, TempPath, true);
 
-            _specTempPath = Path.Combine(Path.GetDirectoryName(_path) ?? Path.GetTempPath(),
+            SpecTempPath = Path.Combine(Path.GetDirectoryName(_path) ?? Path.GetTempPath(),
                 $"{Path.GetFileNameWithoutExtension(_path)}.temp.prs");
-            File.Create(_specTempPath).Close();
+            File.Create(SpecTempPath).Close();
             File.Copy(Path.Combine(Path.GetDirectoryName(_path) ?? Path.GetTempPath(),
-                $"{Path.GetFileNameWithoutExtension(_path)}.prs"), _specTempPath, true);
+                $"{Path.GetFileNameWithoutExtension(_path)}.prs"), SpecTempPath, true);
         }
 
         public void DeleteTempFile()
@@ -58,13 +58,13 @@ namespace ConsoleApp2.MenuService
                 File.Delete(TempPath);
             }
 
-            if (File.Exists(_specTempPath))
+            if (File.Exists(SpecTempPath))
             {
-                File.Delete(_specTempPath);
+                File.Delete(SpecTempPath);
             }
 
             TempPath = null;
-            _specTempPath = null;
+            SpecTempPath = null;
         }
 
         ~TempSaver()

@@ -9,7 +9,7 @@ namespace ConsoleApp2.MenuService
 {
     public class FileService : IFileService
     {
-        private Repository _productRepo;
+        protected Repository _productRepo;
         private bool _filesOpen;
         public event EventHandler ProductsChanged;
         public event EventHandler<string> ErrorOccurred;

@@ -3,10 +3,11 @@ using ConsoleApp2.MenuService;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Controls;
-using System.Linq;
-using System.IO;
+using System.Windows.Shell;
 
 namespace PSListMaker.Models
 {
@@ -46,6 +47,10 @@ namespace PSListMaker.Models
 
         private TempSaver _tempSaver;
 
+        private string _originProductPath;
+
+        private string _originSpecsPath;
+
         public bool IsCanUndo => _commandBuffer.Count > 0;
 
         public bool IsUnsave { get; private set; } = false;
@@ -69,7 +74,12 @@ namespace PSListMaker.Models
         {
             _commandBuffer.Clear();
 
+            _productRepo.ChangeSpecFileName(Path.GetFileName(_originSpecsPath));
+
             _tempSaver.SaveToOrigin();
+
+            _productRepo.ChangeSpecFileName(Path.GetFileName(_tempSaver.SpecTempPath));
+
 
             IsUnsave = false;
         }
@@ -101,9 +111,15 @@ namespace PSListMaker.Models
             _tempSaver = new TempSaver(fullProductPath);
             _tempSaver.CreateTempFile();
 
-            // Здесь в Open нужно поченить проблему с загаловками
-
             base.Open(_tempSaver.TempPath);
+
+            _originProductPath = fullProductPath;
+
+            _originSpecsPath = Path.Combine(Path.GetDirectoryName(fullProductPath),
+                $"{Path.GetFileNameWithoutExtension(fullProductPath)}.prs");
+
+            _productRepo.ChangeSpecFileName(Path.GetFileName(_tempSaver.SpecTempPath));
+
         }
 
         public override void Close()
