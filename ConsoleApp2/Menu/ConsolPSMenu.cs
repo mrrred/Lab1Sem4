@@ -117,7 +117,15 @@ namespace ConsoleApp2.Menu
 
         public bool Invoke(string input)
         {
-            _fileService.Open(input);
+            var inputSplit = input.Split(' ');
+
+            if (inputSplit.Count() != 1)
+            {
+                Console.WriteLine("Error: too many arguments");
+                return true;
+            }
+
+            _fileService.Open(Path.GetFileNameWithoutExtension(inputSplit[0]) + ".prd");
             return true;
         }
     }
