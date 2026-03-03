@@ -19,7 +19,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0"></TextBox>
+            <TextBox x:Name="SearchTextBox" Grid.Column="0"></TextBox>
             <Button Grid.Column="1" Content="Найти"></Button>
         </Grid>
 

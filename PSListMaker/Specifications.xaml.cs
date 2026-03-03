@@ -1,4 +1,5 @@
 ﻿using PSListMaker.Models;
+using PSListMaker.Searchers;
 using PSListMaker.ViewModels;
 using PSListMaker.WindowServices;
 using System;
@@ -20,6 +21,7 @@ namespace PSListMaker
     {
         private SpecificationsViewModel _specificationsViewModel;
         private ISpecificationWindowService _specificationWindowService;
+        private TreeViewSearcher _treeViewSearcher;
 
         public Specifications(ISpecificationWindowService specificationWindowService, 
             SpecificationsViewModel specificationsViewModel)
@@ -28,6 +30,7 @@ namespace PSListMaker
 
             _specificationsViewModel = specificationsViewModel;
             _specificationWindowService = specificationWindowService;
+            _treeViewSearcher = new TreeViewSearcher(Components);
 
             DataContext = _specificationsViewModel;
         }
@@ -67,9 +70,9 @@ namespace PSListMaker
             }
         }
 
-        public void Edit_Button_Click(object sender, RoutedEventArgs e)
+        public void Search_Button_Click(object sender, RoutedEventArgs e)
         {
-            
+            _treeViewSearcher.FindNext(SearchTextBox.Text);
         }
 
         protected override void OnClosed(EventArgs e)
