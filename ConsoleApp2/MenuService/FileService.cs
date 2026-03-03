@@ -58,6 +58,17 @@ namespace ConsoleApp2.MenuService
                 _filesOpen = true;
                 OnProductsChanged();
             }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to create files.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to create files.");
+                else
+                    OnError($"File operation error: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 OnError(ex.Message);
@@ -100,6 +111,14 @@ namespace ConsoleApp2.MenuService
 
                 _filesOpen = true;
                 OnProductsChanged();
+            }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to open files.");
+            }
+            catch (IOException ex)
+            {
+                OnError($"File operation error: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -155,6 +174,17 @@ namespace ConsoleApp2.MenuService
                 _productRepo.Add(product);
                 OnProductsChanged();
             }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to add component.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to add component.");
+                else
+                    OnError($"File operation error: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 OnError(ex.Message);
@@ -194,6 +224,17 @@ namespace ConsoleApp2.MenuService
                 _productRepo.AddSpec(component, spec);
                 OnProductsChanged();
             }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to add specification.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to add specification.");
+                else
+                    OnError($"File operation error: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 OnError(ex.Message);
@@ -213,6 +254,17 @@ namespace ConsoleApp2.MenuService
 
                 _productRepo.Delete(componentName);
                 OnProductsChanged();
+            }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to delete component.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to delete component.");
+                else
+                    OnError($"File operation error: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -241,6 +293,17 @@ namespace ConsoleApp2.MenuService
                 _productRepo.DeleteSpec(component, specificationName);
                 OnProductsChanged();
             }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to delete specification.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to delete specification.");
+                else
+                    OnError($"File operation error: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 OnError(ex.Message);
@@ -267,6 +330,17 @@ namespace ConsoleApp2.MenuService
 
                 _productRepo.EditProduct(productName, newProductName);
                 OnProductsChanged();
+            }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to edit component.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to edit component.");
+                else
+                    OnError($"File operation error: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -298,6 +372,17 @@ namespace ConsoleApp2.MenuService
                 _productRepo.EditSpec(component, specName, newMultiplicity);
                 OnProductsChanged();
             }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to edit specification.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to edit specification.");
+                else
+                    OnError($"File operation error: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 OnError(ex.Message);
@@ -318,6 +403,17 @@ namespace ConsoleApp2.MenuService
                 _productRepo.Restore(componentName);
                 OnProductsChanged();
             }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to restore component.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to restore component.");
+                else
+                    OnError($"File operation error: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 OnError(ex.Message);
@@ -334,6 +430,17 @@ namespace ConsoleApp2.MenuService
                 _productRepo.RestoreAll();
                 OnProductsChanged();
             }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to restore all components.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to restore all components.");
+                else
+                    OnError($"File operation error: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 OnError(ex.Message);
@@ -349,6 +456,17 @@ namespace ConsoleApp2.MenuService
 
                 _productRepo.Truncate();
                 OnProductsChanged();
+            }
+            catch (OutOfMemoryException)
+            {
+                OnError("No available memory to truncate files.");
+            }
+            catch (IOException ex)
+            {
+                if (IsDiskFullError(ex))
+                    OnError("No available disk space to truncate files.");
+                else
+                    OnError($"File operation error: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -561,6 +679,11 @@ namespace ConsoleApp2.MenuService
         private void OnProductsChanged()
         {
             ProductsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private bool IsDiskFullError(IOException ex)
+        {
+            return ex.HResult == unchecked((int)0x80070070);
         }
 
         private void OnError(string message)
