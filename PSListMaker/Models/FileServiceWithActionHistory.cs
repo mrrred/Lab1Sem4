@@ -113,13 +113,16 @@ namespace PSListMaker.Models
 
             base.Open(_tempSaver.TempPath);
 
+            _productRepo.ChangeSpecFileName(Path.GetFileName(_tempSaver.SpecTempPath));
+
+            base.Close();
+
+            base.Open(_tempSaver.TempPath);
+
             _originProductPath = fullProductPath;
 
             _originSpecsPath = Path.Combine(Path.GetDirectoryName(fullProductPath),
                 $"{Path.GetFileNameWithoutExtension(fullProductPath)}.prs");
-
-            _productRepo.ChangeSpecFileName(Path.GetFileName(_tempSaver.SpecTempPath));
-
         }
 
         public override void Close()

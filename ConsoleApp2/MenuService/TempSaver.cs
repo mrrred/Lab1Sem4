@@ -33,8 +33,8 @@ namespace ConsoleApp2.MenuService
             }
 
             File.Copy(TempPath, _path, true);
-            //File.Copy(_specTempPath, Path.Combine(Path.GetDirectoryName(_path) ?? Path.GetTempPath(),
-            //    $"{Path.GetFileNameWithoutExtension(_path)}.prs"), true);
+            File.Copy(SpecTempPath, Path.Combine(Path.GetDirectoryName(_path) ?? Path.GetTempPath(),
+                $"{Path.GetFileNameWithoutExtension(_path)}.prs"), true);
         }
 
         public void CreateTempFile()

@@ -66,7 +66,7 @@ namespace PSListMaker.Views
 
         protected override void OnClosed(EventArgs e)
         {
-            _viewModel.RegisterErrorHandler(ErrorProcess);
+            _viewModel.UnRegisterErrorHandler(ErrorProcess);
             base.OnClosed(e);
         }
     }

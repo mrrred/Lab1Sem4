@@ -29,9 +29,9 @@ namespace PSListMaker.Views
             _viewModel = viewModel;
             _componentName = componentName;
 
-            UpdateItemSource();
+            Update();
 
-            _viewModel.RegisterOnChange((sender, args) => UpdateItemSource());
+            _viewModel.RegisterOnChange(UpdateItemSource);
         }
 
         public void Add_Button_Click(object sender, RoutedEventArgs e)
@@ -72,14 +72,19 @@ namespace PSListMaker.Views
             }
         }
 
-        private void UpdateItemSource()
+        private void UpdateItemSource(object? sender, EventArgs e)
+        {
+            Update();
+        }
+
+        private void Update()
         {
             SpecAddVar.ItemsSource = _viewModel.GetAllProductNames();
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            _viewModel.UnRegisterOnChange((sender, args) => UpdateItemSource());
+            _viewModel.UnRegisterOnChange(UpdateItemSource);
 
             base.OnClosed(e);
         }
