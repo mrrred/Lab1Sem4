@@ -20,10 +20,10 @@
             </Grid.ColumnDefinitions>
 
             <TextBox x:Name="SearchTextBox" Grid.Column="0"></TextBox>
-            <Button Grid.Column="1" Content="Найти"></Button>
+            <Button Grid.Column="1" Content="Найти" Click="Search_Button_Click"></Button>
         </Grid>
 
-        <TreeView x:Name="Components" Grid.Row="1" ItemsSource="{Binding Components}">
+        <TreeView x:Name="Components" Grid.Row="1" ItemsSource="{Binding Components}" VirtualizingPanel.IsVirtualizing="False">
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
                     <EventSetter Event="PreviewMouseRightButtonDown"

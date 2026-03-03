@@ -1,14 +1,11 @@
-﻿using System;
+﻿using PSListMaker.Models;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace PSListMaker.Searchers
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Windows;
-    using System.Windows.Controls;
-
     public class TreeViewSearcher
     {
         private readonly TreeView _treeView;
@@ -46,15 +43,18 @@ namespace PSListMaker.Searchers
                 _currentIndex = 0;
             }
 
+            // Выделяем найденный элемент
             SelectItem(_currentMatches[_currentIndex]);
         }
+
         private List<TreeViewItem> GetAllMatchingTreeViewItems(string searchText)
         {
             var allItems = GetAllTreeViewItems(_treeView);
             return allItems
-                .Where(item => item.Header?.ToString().IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                .Where(item => (item.Header as ComponentMin)?.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
                 .ToList();
         }
+
         private List<TreeViewItem> GetAllTreeViewItems(TreeView treeView)
         {
             var result = new List<TreeViewItem>();
@@ -75,8 +75,11 @@ namespace PSListMaker.Searchers
         {
             list.Add(item);
 
+            bool wasExpanded = item.IsExpanded;
             if (!item.IsExpanded)
                 item.IsExpanded = true;
+
+            item.UpdateLayout();
 
             foreach (var child in item.Items)
             {
@@ -90,19 +93,26 @@ namespace PSListMaker.Searchers
 
         private void SelectItem(TreeViewItem item)
         {
-            if (_currentIndex > 0 && _currentIndex - 1 < _currentMatches.Count)
+            // Снимаем выделение с предыдущего элемента
+            if (_currentMatches != null)
             {
-                var prevItem = _currentMatches[_currentIndex - 1];
-                prevItem.IsSelected = false;
-            }
-            else if (_currentIndex == 0 && _currentMatches.Count > 1)
-            {
-                _currentMatches.Last().IsSelected = false;
+                foreach (var oldItem in _currentMatches)
+                {
+                    if (oldItem != item)
+                        oldItem.IsSelected = false;
+                }
             }
 
             item.IsSelected = true;
             item.BringIntoView();
             item.Focus();
+        }
+
+        public void Reset()
+        {
+            _lastSearchText = null;
+            _currentMatches = null;
+            _currentIndex = -1;
         }
     }
 }
