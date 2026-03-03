@@ -106,6 +106,8 @@ namespace ConsoleApp2.Data
                 spec.SetName(comp.Name);
 
             _specListCache[productOffset].Add(spec);
+
+            SortAlphabetically();
         }
 
         public void Delete(int offset)
@@ -221,6 +223,7 @@ namespace ConsoleApp2.Data
             int productEntitySize = _productSerializer.GetEntitySize();
             int specEntitySize = _specSerializer.GetEntitySize();
             var oldProductOffsets = activeProducts.Select(p => p.FileOffset).ToList();
+            var offsetMapping = new Dictionary<int, int>();
 
             var tempProductStream = _productFsManager.CreateTempFile();
             var tempSpecStream = _specFsManager.CreateTempFile();
@@ -247,6 +250,7 @@ namespace ConsoleApp2.Data
                     for (int i = 0; i < activeProducts.Count; i++)
                     {
                         int newOffset = (int)tempProductStream.Position;
+                        offsetMapping[oldProductOffsets[i]] = newOffset;
                         activeProducts[i].SetFileOffset(newOffset);
 
                         _productSerializer.WriteToFile(activeProducts[i], writer);
@@ -266,46 +270,49 @@ namespace ConsoleApp2.Data
                         {
                             var activeSpecs = specs
                                 .Where(s => !s.IsDeleted)
+                                .OrderBy(s => s.Name)  
                                 .ToList();
 
                             if (activeSpecs.Count > 0)
                             {
-                                int specHeaderOffset = (int)tempSpecStream.Position;
-                                activeProducts[i].SetSpecPtr(specHeaderOffset);
-
                                 tempSpecStream.Seek(0, SeekOrigin.End);
                                 int headerPos = (int)tempSpecStream.Position;
+                                activeProducts[i].SetSpecPtr(headerPos);
 
-                                using (var headerWriter = new BinaryWriter(tempSpecStream, Encoding.UTF8, leaveOpen: true))
-                                {
-                                    int firstSpecPos = headerPos + SpecHeader.GetHeaderSize();
-                                    headerWriter.Write(firstSpecPos);
-
-                                    headerWriter.Write(0);
-                                }
+                                int firstSpecPos = headerPos + SpecHeader.GetHeaderSize();
+                                writer.Write(firstSpecPos); 
+                                writer.Write(firstSpecPos);  
+                                writer.Flush();
 
                                 int unclaimedPtrPos = headerPos + FileStructure.POINTER_SIZE;
 
-                                int lastSpecOffset = 0;
+                                int lastSpecOffset = firstSpecPos;
                                 for (int j = 0; j < activeSpecs.Count; j++)
                                 {
                                     int newSpecOffset = (int)tempSpecStream.Position;
                                     activeSpecs[j].SetFileOffset(newSpecOffset);
+
+                                    int oldComponentPtr = activeSpecs[j].ComponentPtr;
+                                    if (offsetMapping.ContainsKey(oldComponentPtr))
+                                    {
+                                        activeSpecs[j].SetComponentPtr(offsetMapping[oldComponentPtr]);
+                                    }
+
                                     activeSpecs[j].SetNextSpecPtr((j < activeSpecs.Count - 1)
                                         ? newSpecOffset + specEntitySize
                                         : -1);
 
                                     _specSerializer.WriteToFile(activeSpecs[j], writer);
-                                    lastSpecOffset = (int)tempSpecStream.Position;
+                                    writer.Flush();
 
+                                    lastSpecOffset = (int)tempSpecStream.Position;
                                     _productHeader.SetUnclaimedPtr(lastSpecOffset);
                                 }
 
                                 tempSpecStream.Seek(unclaimedPtrPos, SeekOrigin.Begin);
-                                using (var headerWriter = new BinaryWriter(tempSpecStream, Encoding.UTF8, leaveOpen: true))
-                                {
-                                    headerWriter.Write(lastSpecOffset);
-                                }
+                                writer.Write(lastSpecOffset);
+                                writer.Flush();
+
                                 tempSpecStream.Seek(0, SeekOrigin.End);
                             }
                             else
@@ -571,6 +578,7 @@ namespace ConsoleApp2.Data
             }
 
             var oldProductOffsets = sortedProducts.Select(p => p.FileOffset).ToList();
+            var offsetMapping = new Dictionary<int, int>();
 
             int productHeaderSize = ProductHeader.GetHeaderSize();
             int productEntitySize = _productSerializer.GetEntitySize();
@@ -601,6 +609,7 @@ namespace ConsoleApp2.Data
                     for (int i = 0; i < sortedProducts.Count; i++)
                     {
                         int newOffset = (int)tempProductStream.Position;
+                        offsetMapping[oldProductOffsets[i]] = newOffset;
                         sortedProducts[i].SetFileOffset(newOffset);
 
                         _productSerializer.WriteToFile(sortedProducts[i], writer);
@@ -619,46 +628,48 @@ namespace ConsoleApp2.Data
                         {
                             var activeSpecs = specs
                                 .Where(s => !s.IsDeleted)
+                                .OrderBy(s => s.Name)  
                                 .ToList();
 
                             if (activeSpecs.Count > 0)
                             {
-                                int specHeaderOffset = (int)tempSpecStream.Position;
-                                sortedProducts[i].SetSpecPtr(specHeaderOffset);
-
                                 tempSpecStream.Seek(0, SeekOrigin.End);
                                 int headerPos = (int)tempSpecStream.Position;
+                                sortedProducts[i].SetSpecPtr(headerPos);
 
-                                using (var headerWriter = new BinaryWriter(tempSpecStream, Encoding.UTF8, leaveOpen: true))
-                                {
-                                    int firstSpecPos = headerPos + SpecHeader.GetHeaderSize();
-                                    headerWriter.Write(firstSpecPos);
-
-                                    headerWriter.Write(0);
-                                }
+                                int firstSpecPos = headerPos + SpecHeader.GetHeaderSize();
+                                writer.Write(firstSpecPos); 
+                                writer.Write(firstSpecPos);  
+                                writer.Flush();
 
                                 int unclaimedPtrPos = headerPos + FileStructure.POINTER_SIZE;
 
-                                int lastSpecOffset = 0;
+                                int lastSpecOffset = firstSpecPos;
                                 for (int j = 0; j < activeSpecs.Count; j++)
                                 {
                                     int newSpecOffset = (int)tempSpecStream.Position;
                                     activeSpecs[j].SetFileOffset(newSpecOffset);
+
+                                    int oldComponentPtr = activeSpecs[j].ComponentPtr;
+                                    if (offsetMapping.ContainsKey(oldComponentPtr))
+                                    {
+                                        activeSpecs[j].SetComponentPtr(offsetMapping[oldComponentPtr]);
+                                    }
+
                                     activeSpecs[j].SetNextSpecPtr((j < activeSpecs.Count - 1)
                                         ? newSpecOffset + specEntitySize
                                         : -1);
 
                                     _specSerializer.WriteToFile(activeSpecs[j], writer);
-                                    lastSpecOffset = (int)tempSpecStream.Position;
-                                    int newUnclaimedPtr = (int)tempSpecStream.Position;
-                                    _productHeader.SetUnclaimedPtr(newUnclaimedPtr);
-                                }
+                                    writer.Flush();
 
-                                tempSpecStream.Seek(unclaimedPtrPos, SeekOrigin.Begin);
-                                using (var headerWriter = new BinaryWriter(tempSpecStream, Encoding.UTF8, leaveOpen: true))
-                                {
-                                    headerWriter.Write(lastSpecOffset);
+                                    lastSpecOffset = (int)tempSpecStream.Position;
+                                    _productHeader.SetUnclaimedPtr(lastSpecOffset);
                                 }
+                                tempSpecStream.Seek(unclaimedPtrPos, SeekOrigin.Begin);
+                                writer.Write(lastSpecOffset);
+                                writer.Flush();
+
                                 tempSpecStream.Seek(0, SeekOrigin.End);
                             }
                             else
@@ -765,7 +776,10 @@ namespace ConsoleApp2.Data
         public IEnumerable<Spec> GetSpecsForProduct(int productOffset)
         {
             if (_specListCache.ContainsKey(productOffset))
-                return _specListCache[productOffset];
+                return _specListCache[productOffset]
+                    .Where(s => !s.IsDeleted)
+                    .OrderBy(s => s.Name)
+                    .ToList();
             return Enumerable.Empty<Spec>();
         }
 
