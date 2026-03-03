@@ -34,6 +34,7 @@ namespace ConsoleApp2.MenuService
                 if (dataLength <= 0 || dataLength > 32000)
                     throw new ArgumentException("Data length must be between 1 and 32000.");
 
+
                 CloseWithoutVirtual();
                 string fullProductPath = Path.Combine(directoryPath, productFileName + ".prd");
                 string fullSpecPath = Path.Combine(directoryPath, specFileName + ".prs");

@@ -20,7 +20,7 @@ namespace PSListMaker.ViewModels
 
             Components = new(GetComponentsTree());
 
-            _fileService.ProductsChanged += (sender, e) => UpdatePropetys();
+            _fileService.ProductsChanged += UpdatePropetys;
         }
 
         public ObservableCollection<ComponentsWithSpecs> Components { get; private set; }
@@ -82,7 +82,7 @@ namespace PSListMaker.ViewModels
             _fileService.EditSpec(componentName, specificationName, newMultiplicity);
         }
 
-        private void UpdatePropetys()
+        private void UpdatePropetys(object? sender, EventArgs e)
         {
             Components.Clear();
 
@@ -94,7 +94,7 @@ namespace PSListMaker.ViewModels
 
         public void UnRegister()
         {
-            _fileService.ProductsChanged -= (sender, e) => UpdatePropetys();
+            _fileService.ProductsChanged -= UpdatePropetys;
         }
     }
 }
