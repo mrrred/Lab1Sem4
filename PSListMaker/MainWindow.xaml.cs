@@ -46,12 +46,12 @@ namespace PSListMaker
             saveFileDialog.DefaultExt = "prd";
             saveFileDialog.Title = "Создать новый файл";
 
-            if (saveFileDialog.ShowDialog() == true)
+            if (saveFileDialog.ShowDialog() == true || !saveFileDialog.FileName.IsWhiteSpace())
             {
                 _mainWindowViewModel.CreateFile(saveFileDialog.FileName);
-            }
 
-            DoActiveProgram();
+                DoActiveProgram();
+            }
         }
 
         private void Open_Button_Click(object sender, RoutedEventArgs e)
