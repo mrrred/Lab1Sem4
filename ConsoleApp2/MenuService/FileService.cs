@@ -31,6 +31,10 @@ namespace ConsoleApp2.MenuService
                     throw new ArgumentException("Product file name cannot be null or empty.");
                 if (string.IsNullOrWhiteSpace(specFileName))
                     throw new ArgumentException("Spec file name cannot be null or empty.");
+                if (productFileName.Length > FileStructure.SPEC_FILENAME_SIZE)
+                    throw new ArgumentException($"Product file name cannot exceed {FileStructure.SPEC_FILENAME_SIZE} characters (without .prd extension).");
+                if (specFileName.Length > FileStructure.SPEC_FILENAME_SIZE)
+                    throw new ArgumentException($"Spec file name cannot exceed {FileStructure.SPEC_FILENAME_SIZE} characters (without .prs extension).");
                 if (dataLength <= 0 || dataLength > 32000)
                     throw new ArgumentException("Data length must be between 1 and 32000.");
 
@@ -535,6 +539,13 @@ namespace ConsoleApp2.MenuService
 
                 if (string.IsNullOrWhiteSpace(newSpecFileName))
                     throw new ArgumentException("Specification file name cannot be null or empty.");
+
+                string fileNameWithoutExtension = newSpecFileName.EndsWith(".prs", StringComparison.OrdinalIgnoreCase)
+                    ? newSpecFileName.Substring(0, newSpecFileName.Length)
+                    : newSpecFileName;
+
+                if (fileNameWithoutExtension.Length > FileStructure.SPEC_FILENAME_SIZE)
+                    throw new ArgumentException($"Specification file name cannot exceed {FileStructure.SPEC_FILENAME_SIZE} characters (without .prs extension).");
 
                 _productRepo.ChangeSpecFileName(newSpecFileName);
                 OnProductsChanged();
