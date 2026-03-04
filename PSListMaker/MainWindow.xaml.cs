@@ -48,9 +48,30 @@ namespace PSListMaker
 
             if (saveFileDialog.ShowDialog() == true || !saveFileDialog.FileName.IsWhiteSpace())
             {
-                _mainWindowViewModel.CreateFile(saveFileDialog.FileName);
+                string dataLengthBuffer = Microsoft.VisualBasic.Interaction.InputBox(
+                    "Укажите длину записи данных:",
+                    "Длина (в байтах)",
+                    "20");
 
-                DoActiveProgram();
+                short dataLength;
+
+                if (short.TryParse(dataLengthBuffer, out dataLength))
+                {
+                    if (dataLength <= 0)
+                    {
+                        MessageBox.Show(dataLengthBuffer + " длина записи данных не может быть отрциательна или равна 0.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        _mainWindowViewModel.CreateFile(saveFileDialog.FileName, dataLength);
+
+                        DoActiveProgram();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(dataLengthBuffer + " не является числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 

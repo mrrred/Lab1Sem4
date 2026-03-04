@@ -21,13 +21,13 @@ namespace PSListMaker.ViewModels
             _fileService = fileService;
         }
 
-        public void CreateFile(string path)
+        public void CreateFile(string path, short dataLength)
         {
             string Directory = Path.GetDirectoryName(path);
             string fileNames = Path.GetFileNameWithoutExtension(path);
 
             // Пока так
-            _fileService.Create(Directory, fileNames, fileNames, 20);
+            _fileService.Create(Directory, fileNames, fileNames, dataLength);
         }
 
         public void OpenFile(string path)
