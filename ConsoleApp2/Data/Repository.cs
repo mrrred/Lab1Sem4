@@ -155,13 +155,12 @@ namespace ConsoleApp2.Data
             if (product == null)
                 throw new InvalidOperationException("Component not found.");
 
-            var specs = _listManager.GetSpecsForProduct(product.FileOffset).Where(s => !s.IsDeleted).ToList();
-            if (specs.Count > 0)
-                throw new InvalidOperationException("Component contains specifications. Delete specifications first.");
-
             var allProducts = _listManager.GetAllProducts().ToList();
             foreach (var parentProduct in allProducts)
             {
+                if (parentProduct.FileOffset == product.FileOffset)
+                    continue;
+
                 var parentSpecs = _listManager.GetSpecsForProduct(parentProduct.FileOffset).Where(s => !s.IsDeleted).ToList();
                 foreach (var spec in parentSpecs)
                 {
