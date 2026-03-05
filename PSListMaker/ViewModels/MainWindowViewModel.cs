@@ -26,7 +26,6 @@ namespace PSListMaker.ViewModels
             string Directory = Path.GetDirectoryName(path);
             string fileNames = Path.GetFileNameWithoutExtension(path);
 
-            // Пока так
             _fileService.Create(Directory, fileNames, fileNames, dataLength);
         }
 
