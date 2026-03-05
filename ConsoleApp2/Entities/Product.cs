@@ -36,7 +36,7 @@ namespace ConsoleApp2.Entities
         {
             get { return _delBit; }
             set { _delBit = value; }
-        }q
+        }
 
         public int SpecPtr
         {
