@@ -46,7 +46,8 @@ namespace PSListMaker
             saveFileDialog.DefaultExt = "prd";
             saveFileDialog.Title = "Создать новый файл";
 
-            if (saveFileDialog.ShowDialog() == true || !saveFileDialog.FileName.IsWhiteSpace())
+            if (saveFileDialog.ShowDialog() == true 
+                || !(saveFileDialog.FileName != null || saveFileDialog.FileName != string.Empty))
             {
                 string dataLengthBuffer = Microsoft.VisualBasic.Interaction.InputBox(
                     "Укажите длину записи данных:",
@@ -83,7 +84,8 @@ namespace PSListMaker
             openFileDialog.FilterIndex = 1;
             openFileDialog.Title = "Выберите файл для открытия";
 
-            if (openFileDialog.ShowDialog() == true || !openFileDialog.FileName.IsWhiteSpace())
+            if (openFileDialog.ShowDialog() == true 
+                || !(openFileDialog.FileName != null || openFileDialog.FileName != string.Empty))
             {
                 _mainWindowViewModel.OpenFile(openFileDialog.FileName);
 

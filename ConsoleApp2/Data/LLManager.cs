@@ -551,7 +551,7 @@ namespace ConsoleApp2.Data
                 }
             }
 
-            SortAlphabetically();
+    
         }
 
         public void SortAlphabetically()
