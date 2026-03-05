@@ -550,8 +550,6 @@ namespace ConsoleApp2.Data
                     _specListCache[product.FileOffset] = new List<Spec>();
                 }
             }
-
-            SortAlphabetically();
         }
 
         public void SortAlphabetically()
