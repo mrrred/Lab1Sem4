@@ -34,7 +34,6 @@ namespace PSListMaker.Views
         {
             string name = ComponentName.Text;
 
-            // Bad
             ComponentType type = CompType.Text switch
             {
                 "Product" => ComponentType.Product,

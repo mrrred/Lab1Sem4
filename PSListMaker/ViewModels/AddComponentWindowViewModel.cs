@@ -10,7 +10,6 @@ namespace PSListMaker.ViewModels
 {
     public class AddComponentWindowViewModel
     {
-        // Пока что так
         private IFileService _fileService;
 
         public AddComponentWindowViewModel(IFileService fileService)

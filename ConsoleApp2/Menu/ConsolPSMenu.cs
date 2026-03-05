@@ -39,7 +39,6 @@ namespace ConsoleApp2.Menu
 
                 bool statusOfProgram = true;
 
-                // Can be optimized with a dictionary if the number of menu items is large
                 foreach (IMenuItem item in MenuItems)
                 {
                     if (command == item.Title)
@@ -48,14 +47,12 @@ namespace ConsoleApp2.Menu
                         break;
                     }
 
-                    // Don't good idea
                     if (item == MenuItems.Last())
                     {
                         Console.WriteLine("Incorrect command");
                     }
                 }
 
-                // Can be exit code
                 if (!statusOfProgram)
                 {
                     Console.WriteLine("End of program");

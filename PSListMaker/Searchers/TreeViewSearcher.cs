@@ -43,7 +43,6 @@ namespace PSListMaker.Searchers
                 _currentIndex = 0;
             }
 
-            // Выделяем найденный элемент
             SelectItem(_currentMatches[_currentIndex]);
         }
 
@@ -93,7 +92,6 @@ namespace PSListMaker.Searchers
 
         private void SelectItem(TreeViewItem item)
         {
-            // Снимаем выделение с предыдущего элемента
             if (_currentMatches != null)
             {
                 foreach (var oldItem in _currentMatches)
